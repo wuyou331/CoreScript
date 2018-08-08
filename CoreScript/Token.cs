@@ -4,28 +4,78 @@ using System.Text;
 
 namespace CoreScript
 {
-    public class Token
+    public abstract class Token
     {
-        public string TokenType { get; set; }
+        public  abstract TokenType TokenType { get;  }
+        public override string ToString()
+        {
+            return TokenType.ToString();
+        }
+    }
 
-        public string Value { get; set; }
+    public class TokenVariable : Token
+    {
+        /// <summary>
+        /// 变量类型
+        /// </summary>
+        public string DataType { get; set; }
+        /// <summary>
+        /// 变量名
+        /// </summary>
+        public string Variable { get; set; }
+        /// <summary>
+        /// 变量值
+        /// </summary>
+        public object Value { get; set; }
 
-        public int Postion { get; set; }
+        public override TokenType TokenType => TokenType.Variable;
+    }
+
+    public class TokenTuple:Token
+    {
+        public override TokenType TokenType => TokenType.Tuple;
+        public IList<TokenVariable> TokenVariables { get; set; }
+    }
+
+    public abstract class TokenStement : Token
+    {
+      
+
+    }
+
+    public class TokenFunctionCallStement : TokenStement
+    {
+        public override TokenType TokenType => TokenType.FunctionCall;
+        /// <summary>
+        /// 方法调用链
+        /// </summary>
+        public IList<string> CallChain { get; set; }
+        public TokenTuple Parameter { get; set; }
+
+    }
+
+    public class TokenBlockStement : TokenStement
+    {
+        public override TokenType TokenType => TokenType.FunctionCall;
+        public IList<TokenStement> Stements { get; set; }
+    }
+
+    public class TokenFunctionDefine : Token
+    {
+        public override TokenType TokenType => TokenType.FunctionDefine;
+        public string Name { get; set; }
+        public IList<TokenVariable> Parameters { get; set; }
+        public TokenBlockStement CodeBlock { get; set; }
+
+        public TokenVariable ReturnValue { get; set; }
     }
 
     public enum TokenType
     {
-        Keyword,
-        Identifier,
+        FunctionDefine,
+        FunctionCall,
         Tuple,
-        Dot,
-        Comma,
-        ParenBegin,
-        ParenEnd,
-        CurlyBegin,
-        CurlyClose,
-        String,
-        Int,
-        Double
+        Block,
+        Variable
     }
 }
