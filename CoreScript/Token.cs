@@ -13,7 +13,31 @@ namespace CoreScript
         }
     }
 
-    public class TokenVariable : Token
+    /// <summary>
+    /// 字面量或者变量应用
+    /// </summary>
+    public abstract class TokenValue : Token
+    {
+    }
+    /// <summary>
+    /// 变量引用
+    /// </summary>
+    public class TokenVariableRef : Token
+    {
+        public override TokenType TokenType => TokenType.Identifier;
+        public TokenVariableDefine Variable { get; set; }
+    }
+    /// <summary>
+    /// 字面量
+    /// </summary>
+    public class TokenLiteral : Token
+    {
+        public override TokenType TokenType => TokenType.Literal;
+        public string DateType { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class TokenVariableDefine : Token
     {
         /// <summary>
         /// 变量类型
@@ -26,16 +50,12 @@ namespace CoreScript
         /// <summary>
         /// 变量值
         /// </summary>
-        public object Value { get; set; }
+        public TokenValue Value { get; set; }
 
-        public override TokenType TokenType => TokenType.Variable;
+        public override TokenType TokenType => TokenType.VariableDefine;
     }
 
-    public class TokenTuple:Token
-    {
-        public override TokenType TokenType => TokenType.Tuple;
-        public IList<TokenVariable> TokenVariables { get; set; }
-    }
+
 
     public abstract class TokenStement : Token
     {
@@ -50,7 +70,7 @@ namespace CoreScript
         /// 方法调用链
         /// </summary>
         public IList<string> CallChain { get; set; }
-        public TokenTuple Parameter { get; set; }
+        public IList<TokenValue> Parameters { get; set; }
 
     }
 
@@ -64,18 +84,20 @@ namespace CoreScript
     {
         public override TokenType TokenType => TokenType.FunctionDefine;
         public string Name { get; set; }
-        public IList<TokenVariable> Parameters { get; set; }
+        public IList<TokenVariableDefine> Parameters { get; set; }
         public TokenBlockStement CodeBlock { get; set; }
 
-        public TokenVariable ReturnValue { get; set; }
+        public TokenVariableDefine ReturnValue { get; set; }
     }
 
     public enum TokenType
     {
         FunctionDefine,
         FunctionCall,
-        Tuple,
         Block,
-        Variable
+        VariableDefine,
+
+        Identifier,
+        Literal
     }
 }
