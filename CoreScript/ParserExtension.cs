@@ -32,12 +32,26 @@ namespace CoreScript
             return item.SelectMany(it => it).ToList();
         }
 
+        public static T GetOrDefault<T>(this IOption<T> option,Func<T> func)
+        {
+            if (!option.IsEmpty)
+                return option.Get();
+            return func();
+        }
         public static IEnumerable<T> ToArray<T>(this IOption<T> option)
         {
             if (!option.IsEmpty)
                 return new T[] {option.Get()};
             return new T[0];
         }
+        public static IEnumerable<T> ToArray<T>(this IOption<IEnumerable<T>> option)
+        {
+            if (!option.IsEmpty)
+                return option.Get();
+            return new T[0];
+        }
+
+
         public static IEnumerable<string> Concat(this char chr, IEnumerable<string> str)
         {
             return new[] { chr.ToString() }.Concat(str);

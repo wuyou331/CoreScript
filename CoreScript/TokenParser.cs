@@ -16,7 +16,7 @@ namespace CoreScript
             select new TokenFunctionDefine()
             {
                 Name = name.Text(),
-                Parameters = args.IsEmpty ? args.Get().ToList() : new List<TokenVariableDefine>(),
+                Parameters = args.GetOrDefault(() => new TokenTupleDefine()),
                 CodeBlock = block
             }).Token();
     }
@@ -34,9 +34,6 @@ namespace CoreScript
             select s1.Concat(s2).Text()).Token();
 
         #region Literal
-
-        public static readonly Parser<TokenValue> Literal =
-            LiteralDouble.Or(LiteralInt);
 
         public static readonly Parser<TokenValue> LiteralInt =
         (from sign in Parse.Char('-').Optional()
@@ -64,7 +61,12 @@ namespace CoreScript
             from close in Parse.Char('"')
             select content.Text()).Token();
 
+        public static readonly Parser<TokenValue> Literal =
+            LiteralDouble.Or(LiteralInt);
         #endregion
+
+
+
 
         /// <summary>
         /// ex:int a
@@ -79,6 +81,8 @@ namespace CoreScript
             }
         ).Token();
 
+
+
         /// <summary>
         /// ex:int a,int b
         /// </summary>
@@ -92,11 +96,14 @@ namespace CoreScript
         /// <summary>
         /// ex:(int a,int b)
         /// </summary>
-        public static readonly Parser<IEnumerable<TokenVariableDefine>> TupleDefine = (
+        public static readonly Parser<TokenTupleDefine> TupleDefine = (
             from s1 in Parse.Char('(').Token()
             from vars in Variables.Optional()
             from s2 in Parse.Char(')').Token()
-            select vars.GetOrDefault()).Token();
+            select new TokenTupleDefine
+            {
+                Values = vars.ToArray().ToList()
+            }).Token();
 
 
         public static readonly Parser<TokenVariableRef> VariableRef = (from s in Identifier
@@ -106,9 +113,9 @@ namespace CoreScript
             });
 
         /// <summary>
-        /// ex:("123")
+        /// ex:("abc",id,123)
         /// </summary>
-        public static readonly Parser<IEnumerable<TokenValue>> CallMethodStatementArgs =
+        public static readonly Parser<IEnumerable<TokenValue>> Tuple =
         (from left in Parse.Char('(').Token()
             from argFirst in VariableRef.Or(Literal).Once()
             from argOther in (from comma in Parse.Char(',').Token()
@@ -125,12 +132,12 @@ namespace CoreScript
             from other in (from s22 in Parse.Char('.')
                 from s23 in Identifier
                 select s23.Text()).Many()
-            from argResult in CallMethodStatementArgs.Many()
+            from argResult in Tuple
             from end in Parse.Char(';').Token()
             select new TokenFunctionCallStement()
             {
                 CallChain = new List<string>(first.Concat(other)),
-                Parameters = argResult.SelectMany()
+                Parameters = argResult.ToList()
             }
         ).Token();
 

@@ -58,6 +58,18 @@ namespace CoreScript
         public override TokenType TokenType => TokenType.VariableDefine;
     }
 
+    public class TokenTupleDefine: Token
+    {
+        public override TokenType TokenType => TokenType.TupleDefine;
+        public IList<TokenVariableDefine> Values { get; set; }
+    }
+
+    public class TokenTuple : Token
+    {
+        public override TokenType TokenType => TokenType.Tuple;
+        public IList<TokenValue> Parameters { get; set; }
+    }
+
 
     /// <summary>
     /// 语句
@@ -89,7 +101,7 @@ namespace CoreScript
     {
         public override TokenType TokenType => TokenType.FunctionDefine;
         public string Name { get; set; }
-        public IList<TokenVariableDefine> Parameters { get; set; }
+        public TokenTupleDefine Parameters { get; set; }
         public TokenBlockStement CodeBlock { get; set; }
 
         public TokenVariableDefine ReturnValue { get; set; }
@@ -101,7 +113,8 @@ namespace CoreScript
         FunctionCall,
         Block,
         VariableDefine,
-
+        TupleDefine,
+        Tuple,
         Identifier,
         Literal
     }
