@@ -58,7 +58,7 @@ namespace CoreScript.Test
         {
             Assert.IsTrue(FactorParser.LiteralInt.TryParse("123").WasSuccessful);
             Assert.IsTrue(FactorParser.LiteralInt.TryParse("0123").WasSuccessful);
-            Assert.IsFalse(FactorParser.LiteralInt.TryParse("1.2").WasSuccessful);
+            Assert.IsTrue(FactorParser.LiteralInt.TryParse("1.2").WasSuccessful);
         }
         [TestMethod]
         public void TestDouble()

@@ -10,8 +10,8 @@ namespace CoreScript
     {
         public static readonly Parser<TokenFunctionDefine> FuncParser =
         (from id in FactorParser.Keyword("func").Token()
-            from name in FactorParser.Identifier.Token()
-            from args in FactorParser.TupleDefine.Optional().Token()
+            from name in FactorParser.Identifier
+            from args in FactorParser.TupleDefine.Optional()
             from block in FactorParser.Block
             select new TokenFunctionDefine()
             {
@@ -46,9 +46,9 @@ namespace CoreScript
 
         public static readonly Parser<TokenValue> LiteralDouble =
         (from sign in Parse.Char('-').Optional()
-            from a in Parse.Number.Many()
+            from a in Parse.Number.AtLeastOnce()
             from n in Parse.Char('.').Once()
-            from c in Parse.Number.Many()
+            from c in Parse.Number.AtLeastOnce()
             select new TokenLiteral()
             {
                 DateType = "Double",
