@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprache;
 
@@ -40,8 +41,33 @@ namespace CoreScript.Test
         public void TestStatement()
         {
             Assert.IsTrue(FactorParser.CallMethodStatement.TryParse("abc();").WasSuccessful);
+            Assert.IsTrue(FactorParser.CallMethodStatement.TryParse("abc(abc);").WasSuccessful);
             Assert.IsTrue(FactorParser.CallMethodStatement.TryParse("abc.abc();").WasSuccessful);
             Assert.IsFalse(FactorParser.CallMethodStatement.TryParse("abc;").WasSuccessful);
+        }
+
+        [TestMethod]
+        public void TestString()
+        {
+            Assert.IsTrue(FactorParser.LiteralString.TryParse("\"asdf\"").WasSuccessful);
+            Assert.IsTrue(FactorParser.LiteralString.TryParse("\"as\\\"df\"").WasSuccessful);
+        }
+
+        [TestMethod]
+        public void TestInt()
+        {
+            Assert.IsTrue(FactorParser.LiteralInt.TryParse("123").WasSuccessful);
+            Assert.IsTrue(FactorParser.LiteralInt.TryParse("0123").WasSuccessful);
+            Assert.IsFalse(FactorParser.LiteralInt.TryParse("1.2").WasSuccessful);
+        }
+        [TestMethod]
+        public void TestDouble()
+        {
+            Assert.IsTrue(FactorParser.LiteralDouble.TryParse("12.12").WasSuccessful);
+            Assert.IsTrue(FactorParser.LiteralDouble.TryParse("0.12").WasSuccessful);
+            Assert.IsTrue(FactorParser.LiteralDouble.TryParse("-12.12").WasSuccessful);
+            Assert.IsFalse(FactorParser.LiteralDouble.TryParse("-12.").WasSuccessful);
+            Assert.IsFalse(FactorParser.LiteralDouble.TryParse("-.12").WasSuccessful);
         }
     }
 }

@@ -22,15 +22,16 @@ namespace CoreScript
     /// <summary>
     /// 变量引用
     /// </summary>
-    public class TokenVariableRef : Token
+    public class TokenVariableRef : TokenValue
     {
         public override TokenType TokenType => TokenType.Identifier;
-        public TokenVariableDefine Variable { get; set; }
+        public string Variable { get; set; }
     }
+
     /// <summary>
     /// 字面量
     /// </summary>
-    public class TokenLiteral : Token
+    public class TokenLiteral : TokenValue
     {
         public override TokenType TokenType => TokenType.Literal;
         public string DateType { get; set; }
@@ -56,7 +57,9 @@ namespace CoreScript
     }
 
 
-
+    /// <summary>
+    /// 语句
+    /// </summary>
     public abstract class TokenStement : Token
     {
       

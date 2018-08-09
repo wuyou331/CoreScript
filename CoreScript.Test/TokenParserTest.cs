@@ -12,9 +12,12 @@ namespace CoreScript.Test
         public void TestFuncParser()
         {
             Assert.IsTrue(TokenParser.FuncParser.TryParse("func abc(){}").WasSuccessful);
-            Assert.IsTrue(TokenParser.FuncParser.TryParse("func abc(){" +
-                                                          "Console.WriteLine();" +
-                                                          "}").WasSuccessful);
+            var rs = TokenParser.FuncParser.TryParse("func abc(){" +
+                                                     "Console.WriteLine(abc);" +
+                                                     "Console.WriteLine(123);" +
+                                                     "Console.WriteLine(123.12);" +
+                                                     "}");
+            Assert.IsTrue(rs.WasSuccessful);
             Assert.IsFalse(TokenParser.FuncParser.TryParse("func abc(){" +
                                                           "Console.WriteLine()" +
                                                           "}").WasSuccessful);
