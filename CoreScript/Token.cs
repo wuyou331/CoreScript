@@ -14,11 +14,13 @@ namespace CoreScript
     }
 
     /// <summary>
-    /// 字面量或者变量应用
+    /// 字面量或者变量引用
     /// </summary>
     public abstract class TokenValue : Token
     {
     }
+
+
     /// <summary>
     /// 变量引用
     /// </summary>
