@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace CoreScript
+namespace CoreScript.Tokens
 {
     public abstract class Token
     {
@@ -18,6 +16,7 @@ namespace CoreScript
     /// </summary>
     public abstract class TokenValue : Token
     {
+        public string DateType { get; set; }
     }
 
 
@@ -36,7 +35,7 @@ namespace CoreScript
     public class TokenLiteral : TokenValue
     {
         public override TokenType TokenType => TokenType.Literal;
-        public string DateType { get; set; }
+
         public string Value { get; set; }
     }
 

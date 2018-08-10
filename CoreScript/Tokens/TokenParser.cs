@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CoreScript.Tokens;
 using Sprache;
 
 namespace CoreScript
@@ -55,14 +56,17 @@ namespace CoreScript
                 Value = sign.ToArray().Concat(a).Concat(n).Concat(c).Text()
             }).Token();
 
-        public static readonly Parser<string> LiteralString = (from open in Parse.Char('"')
-            from content in (from a in Parse.AnyChar.Until(Parse.String("\\\""))
-                select a.Text()).Many()
+        public static readonly Parser<TokenValue> LiteralString = (from open in Parse.Char('"')
+            from content in Parse.CharExcept('\"').Many()
             from close in Parse.Char('"')
-            select content.Text()).Token();
+            select new TokenLiteral()
+            {
+                DateType = "String",
+                Value = content.Text()
+            }).Token();
 
         public static readonly Parser<TokenValue> Literal =
-            LiteralDouble.Or(LiteralInt);
+            LiteralDouble.Or(LiteralInt).Or(LiteralString);
         #endregion
 
 

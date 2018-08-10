@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreScript", "CoreScript\CoreScript.csproj", "{FA0F189E-9AAF-4348-BC21-36795FADA32E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreScript", "CoreScript\CoreScript.csproj", "{FA0F189E-9AAF-4348-BC21-36795FADA32E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreScript.Test", "CoreScript.Test\CoreScript.Test.csproj", "{51ABCD9A-D7D8-4815-ACF7-DB9D3D73E2AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreScript.Test", "CoreScript.Test\CoreScript.Test.csproj", "{51ABCD9A-D7D8-4815-ACF7-DB9D3D73E2AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{0CE962F1-EEA1-4AEE-81B6-DD450AF1C994}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{51ABCD9A-D7D8-4815-ACF7-DB9D3D73E2AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51ABCD9A-D7D8-4815-ACF7-DB9D3D73E2AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51ABCD9A-D7D8-4815-ACF7-DB9D3D73E2AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CE962F1-EEA1-4AEE-81B6-DD450AF1C994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CE962F1-EEA1-4AEE-81B6-DD450AF1C994}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CE962F1-EEA1-4AEE-81B6-DD450AF1C994}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CE962F1-EEA1-4AEE-81B6-DD450AF1C994}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
