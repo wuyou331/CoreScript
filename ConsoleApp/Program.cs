@@ -11,6 +11,8 @@ namespace ConsoleApp
                             "var name = \" \\\"wuyou \\\"\";" +
                             "Console.Write(\"my name is \");" +
                             "Console.WriteLine(name);" +
+                            "name = 12345;"+
+                            "Console.WriteLine(name);" +
                             "Console.WriteLine(123);" +
                             "Console.WriteLine(123.12);" +
                             "}";

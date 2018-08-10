@@ -42,21 +42,24 @@ namespace CoreScript.Script
         /// <param name="stement"></param>
         private void Excute(TokenAssignment stement)
         {
-            object value = null;
-
+            ScriptVariable varItem = null;
             if (stement.Left is TokenVariableDefine define)
             {
-                ScriptVariable varItem = new ScriptVariable();
-          
+                 varItem = new ScriptVariable();
                 _localVars[define.Variable] = varItem;
-                if (stement.Right is TokenLiteral literal)
-                {
-                    varItem.DataType = literal.DataType;
-                    value = literal.Value;
-                }
-
-                varItem.Value = value;
             }
+            else if (stement.Left is TokenVariableRef varRef)
+            {
+                varItem = _localVars[varRef.Variable];
+            }
+
+        
+            if (stement.Right is TokenLiteral literal)
+            {
+                varItem.DataType = literal.DataType;
+                varItem.Value = literal.Value;
+            }
+
         }
         /// <summary>
         /// 方法调用
