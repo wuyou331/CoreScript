@@ -36,8 +36,7 @@ namespace CoreScript.Tokens
     public class TokenLiteral : Token, ITokenValue
     {
         public override TokenType TokenType => TokenType.Literal;
-
-        public string Value { get; set; }
+        public object Value { get; set; }
         public string DateType { get; set; }
     }
 

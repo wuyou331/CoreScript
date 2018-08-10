@@ -38,11 +38,11 @@ namespace CoreScript
 
         public static readonly Parser<ITokenValue> LiteralInt =
         (from sign in Parse.Char('-').Optional()
-            from n in Parse.Number.Many()
+            from n in Parse.Number.AtLeastOnce()
             select new TokenLiteral()
             {
-                DateType = "Int",
-                Value = sign.ToArray().Concat(n).Text()
+                DateType =nameof(Int32),
+                Value =int.Parse(sign.ToArray().Concat(n).Text()) 
             }).Token();
 
         public static readonly Parser<ITokenValue> LiteralDouble =
@@ -52,8 +52,8 @@ namespace CoreScript
             from c in Parse.Number.AtLeastOnce()
             select new TokenLiteral()
             {
-                DateType = "Double",
-                Value = sign.ToArray().Concat(a).Concat(n).Concat(c).Text()
+                DateType = nameof(Double),
+                Value = Double.Parse(sign.ToArray().Concat(a).Concat(n).Concat(c).Text())
             }).Token();
 
         public static readonly Parser<ITokenValue> LiteralString = (from open in Parse.Char('"')
@@ -61,16 +61,13 @@ namespace CoreScript
             from close in Parse.Char('"')
             select new TokenLiteral()
             {
-                DateType = "String",
+                DateType =nameof(String),
                 Value = content.Text()
             }).Token();
 
         public static readonly Parser<ITokenValue> Literal =
             LiteralDouble.Or(LiteralInt).Or(LiteralString);
         #endregion
-
-
-
 
         /// <summary>
         /// ex:int a
@@ -84,8 +81,6 @@ namespace CoreScript
                 Variable = value.Text()
             }
         ).Token();
-
-
 
         /// <summary>
         /// ex:int a,int b
