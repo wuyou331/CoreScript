@@ -56,8 +56,15 @@ namespace CoreScript
                 Value = Double.Parse(sign.ToArray().Concat(a).Concat(n).Concat(c).Text())
             }).Token();
 
+        /// <summary>
+        /// ex: asfd\"
+        /// </summary>
+        private static readonly Parser<string> LiteralStringPart = (from first in Parse.CharExcept("\\\"").Many()
+            from second in Parse.String("\\\"").Then((x)=> Parse.Return("\\\"")).Optional()
+            select first.Concat(second.GetOrDefault(()=>string.Empty)).Text());
+
         public static readonly Parser<ITokenValue> LiteralString = (from open in Parse.Char('"')
-            from content in Parse.CharExcept('\"').Many()
+            from content in LiteralStringPart.Many()
             from close in Parse.Char('"')
             select new TokenLiteral()
             {

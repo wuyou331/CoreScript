@@ -49,6 +49,7 @@ namespace CoreScript.Test
         [TestMethod]
         public void TestString()
         {
+            Assert.IsTrue(FactorParser.LiteralString.TryParse("\"\"").WasSuccessful);
             Assert.IsTrue(FactorParser.LiteralString.TryParse("\"asdf\"").WasSuccessful);
             Assert.IsTrue(FactorParser.LiteralString.TryParse("\"as\\\"df\"").WasSuccessful);
         }
