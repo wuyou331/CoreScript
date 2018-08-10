@@ -8,7 +8,7 @@ namespace ConsoleApp
         static void Main(string[] args)
         {
             string script = "func main(){" +
-                            "String name = \" \\\"wuyou \\\"\";" +
+                            "var name = \" \\\"wuyou \\\"\";" +
                             "Console.Write(\"my name is \");" +
                             "Console.WriteLine(name);" +
                             "Console.WriteLine(123);" +

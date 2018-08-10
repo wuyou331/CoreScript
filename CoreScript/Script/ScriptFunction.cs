@@ -47,10 +47,11 @@ namespace CoreScript.Script
             if (stement.Left is TokenVariableDefine define)
             {
                 ScriptVariable varItem = new ScriptVariable();
-                varItem.DataType = define.DataType;
+          
                 _localVars[define.Variable] = varItem;
                 if (stement.Right is TokenLiteral literal)
                 {
+                    varItem.DataType = literal.DataType;
                     value = literal.Value;
                 }
 
@@ -99,6 +100,11 @@ namespace CoreScript.Script
             return method.Invoke(null, paremeters.ToArray());
         }
 
+        /// <summary>
+        /// 根据字面量字符串获取Type类型
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private Type GetTypeByString(string type)
         {
             switch (type)
@@ -107,7 +113,6 @@ namespace CoreScript.Script
                     return typeof(int);
                 case nameof(Double):
                     return typeof(double);
-                    break;
                 case nameof(String):
                     return typeof(string);
                 default:
