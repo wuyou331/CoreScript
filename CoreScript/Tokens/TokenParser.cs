@@ -60,7 +60,7 @@ namespace CoreScript
         /// ex: asfd\"
         /// </summary>
         private static readonly Parser<string> LiteralStringPart = (from first in Parse.CharExcept("\\\"").Many()
-            from second in Parse.String("\\\"").Then((x)=> Parse.Return("\\\"")).Optional()
+            from second in Parse.String("\\\"").Then((x)=> Parse.Return("\"")).Optional()
             select first.Concat(second.GetOrDefault(()=>string.Empty)).Text());
 
         public static readonly Parser<ITokenValue> LiteralString = (from open in Parse.Char('"')
