@@ -30,27 +30,27 @@ namespace CoreScript.Tokens
         public static readonly Parser<string> Identifier =
         (from s1 in Parse.Letter.Or(Parse.Char('_')).Once()
             from s2 in Parse.LetterOrDigit.Or(Parse.Char('_')).Many()
-            select s1.Concat(s2).Text()).Token();
+            select s1.Concat(s2).Text());
 
         #region Literal
 
-        public static readonly Parser<ITokenValue> LiteralInt =
+        public static readonly Parser<IReturnValue> LiteralInt =
         (from sign in Parse.Char('-').Optional()
             from n in Parse.Number.AtLeastOnce()
             select new TokenLiteral()
             {
-                DateType =nameof(Int32),
-                Value =int.Parse(sign.ToArray().Concat(n).Text()) 
+                DataType = nameof(Int32),
+                Value = int.Parse(sign.ToArray().Concat(n).Text())
             }).Token();
 
-        public static readonly Parser<ITokenValue> LiteralDouble =
+        public static readonly Parser<IReturnValue> LiteralDouble =
         (from sign in Parse.Char('-').Optional()
             from a in Parse.Number.AtLeastOnce()
             from n in Parse.Char('.').Once()
             from c in Parse.Number.AtLeastOnce()
             select new TokenLiteral()
             {
-                DateType = nameof(Double),
+                DataType = nameof(Double),
                 Value = Double.Parse(sign.ToArray().Concat(a).Concat(n).Concat(c).Text())
             }).Token();
 
@@ -58,27 +58,28 @@ namespace CoreScript.Tokens
         /// ex: asfd\"
         /// </summary>
         private static readonly Parser<string> LiteralStringPart = (from first in Parse.CharExcept("\\\"").Many()
-            from second in Parse.String("\\\"").Then((x)=> Parse.Return("\"")).Optional()
-            select first.Concat(second.GetOrDefault(()=>string.Empty)).Text());
+            from second in Parse.String("\\\"").Then((x) => Parse.Return("\"")).Optional()
+            select first.Concat(second.GetOrDefault(() => string.Empty)).Text());
 
-        public static readonly Parser<ITokenValue> LiteralString = (from open in Parse.Char('"')
+        public static readonly Parser<IReturnValue> LiteralString = (from open in Parse.Char('"')
             from content in LiteralStringPart.Many()
             from close in Parse.Char('"')
             select new TokenLiteral()
             {
-                DateType =nameof(String),
+                DataType = nameof(String),
                 Value = content.Text()
             }).Token();
 
-        public static readonly Parser<ITokenValue> Literal =
+        public static readonly Parser<IReturnValue> Literal =
             LiteralDouble.Or(LiteralInt).Or(LiteralString);
+
         #endregion
 
         /// <summary>
         /// ex:int a
         /// </summary>
-        public static readonly Parser<TokenVariableDefine> VariableDefine = (from type in Identifier.Token()
-            from space in Parse.WhiteSpace.Many()
+        public static readonly Parser<TokenVariableDefine> VariableDefine = (from type in Identifier
+            from space in Parse.WhiteSpace.AtLeastOnce()
             from value in Identifier.Token()
             select new TokenVariableDefine()
             {
@@ -119,7 +120,7 @@ namespace CoreScript.Tokens
         /// <summary>
         /// ex:("abc",id,123)
         /// </summary>
-        public static readonly Parser<IEnumerable<ITokenValue>> Tuple =
+        public static readonly Parser<IEnumerable<IReturnValue>> Tuple =
         (from left in Parse.Char('(').Token()
             from argFirst in VariableRef.Or(Literal).Once()
             from argOther in (from comma in Parse.Char(',').Token()
@@ -145,7 +146,23 @@ namespace CoreScript.Tokens
             }
         ).Token();
 
-        public static readonly Parser<TokenStement> Statement = CallMethodStatement;
+        /// <summary>
+        /// ex: int a =1; or  a=1; 
+        /// </summary>
+        public static readonly Parser<TokenStement> Assignment =
+        (from left in VariableDefine.Or<IReturnValue>(VariableRef)
+            from cent in Parse.Char('=').Token()
+            from right in Literal.Or(VariableRef).Or(CallMethodStatement)
+            from last in Parse.Char(';').Token()
+         select new TokenAssignment(left.TokenType == TokenType.VariableDefine
+                ? TokenType.AssignmentInit
+                : TokenType.Assignment)
+            {
+                Left = left,
+                Right = right
+            }).Token();
+
+        public static readonly Parser<TokenStement> Statement = CallMethodStatement.Or(Assignment);
 
         /// <summary>
         /// 代码段
