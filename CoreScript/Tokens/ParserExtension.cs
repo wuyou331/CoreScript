@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Sprache;
 
-namespace CoreScript
+namespace CoreScript.Tokens
 {
     public static class ParserExtension
     {

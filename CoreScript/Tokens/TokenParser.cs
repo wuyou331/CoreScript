@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CoreScript.Tokens;
 using Sprache;
 
-namespace CoreScript
+namespace CoreScript.Tokens
 {
     public static class TokenParser
     {

@@ -1,3 +1,4 @@
+using CoreScript.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprache;
 
