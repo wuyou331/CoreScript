@@ -36,7 +36,7 @@ namespace CoreScript
 
         #region Literal
 
-        public static readonly Parser<TokenValue> LiteralInt =
+        public static readonly Parser<ITokenValue> LiteralInt =
         (from sign in Parse.Char('-').Optional()
             from n in Parse.Number.Many()
             select new TokenLiteral()
@@ -45,7 +45,7 @@ namespace CoreScript
                 Value = sign.ToArray().Concat(n).Text()
             }).Token();
 
-        public static readonly Parser<TokenValue> LiteralDouble =
+        public static readonly Parser<ITokenValue> LiteralDouble =
         (from sign in Parse.Char('-').Optional()
             from a in Parse.Number.AtLeastOnce()
             from n in Parse.Char('.').Once()
@@ -56,7 +56,7 @@ namespace CoreScript
                 Value = sign.ToArray().Concat(a).Concat(n).Concat(c).Text()
             }).Token();
 
-        public static readonly Parser<TokenValue> LiteralString = (from open in Parse.Char('"')
+        public static readonly Parser<ITokenValue> LiteralString = (from open in Parse.Char('"')
             from content in Parse.CharExcept('\"').Many()
             from close in Parse.Char('"')
             select new TokenLiteral()
@@ -65,7 +65,7 @@ namespace CoreScript
                 Value = content.Text()
             }).Token();
 
-        public static readonly Parser<TokenValue> Literal =
+        public static readonly Parser<ITokenValue> Literal =
             LiteralDouble.Or(LiteralInt).Or(LiteralString);
         #endregion
 
@@ -119,7 +119,7 @@ namespace CoreScript
         /// <summary>
         /// ex:("abc",id,123)
         /// </summary>
-        public static readonly Parser<IEnumerable<TokenValue>> Tuple =
+        public static readonly Parser<IEnumerable<ITokenValue>> Tuple =
         (from left in Parse.Char('(').Token()
             from argFirst in VariableRef.Or(Literal).Once()
             from argOther in (from comma in Parse.Char(',').Token()

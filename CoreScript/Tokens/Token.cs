@@ -14,29 +14,31 @@ namespace CoreScript.Tokens
     /// <summary>
     /// 字面量或者变量引用
     /// </summary>
-    public abstract class TokenValue : Token
+    public  interface ITokenValue 
     {
-        public string DateType { get; set; }
+         string DateType { get; set; }
     }
 
 
     /// <summary>
     /// 变量引用
     /// </summary>
-    public class TokenVariableRef : TokenValue
+    public class TokenVariableRef : Token, ITokenValue
     {
         public override TokenType TokenType => TokenType.Identifier;
         public string Variable { get; set; }
+        public string DateType { get; set; }
     }
 
     /// <summary>
     /// 字面量
     /// </summary>
-    public class TokenLiteral : TokenValue
+    public class TokenLiteral : Token, ITokenValue
     {
         public override TokenType TokenType => TokenType.Literal;
 
         public string Value { get; set; }
+        public string DateType { get; set; }
     }
 
     public class TokenVariableDefine : Token
@@ -52,7 +54,7 @@ namespace CoreScript.Tokens
         /// <summary>
         /// 变量值
         /// </summary>
-        public TokenValue Value { get; set; }
+        public ITokenValue Value { get; set; }
 
         public override TokenType TokenType => TokenType.VariableDefine;
     }
@@ -66,7 +68,7 @@ namespace CoreScript.Tokens
     public class TokenTuple : Token
     {
         public override TokenType TokenType => TokenType.Tuple;
-        public IList<TokenValue> Parameters { get; set; }
+        public IList<ITokenValue> Parameters { get; set; }
     }
 
 
@@ -86,7 +88,7 @@ namespace CoreScript.Tokens
         /// 方法调用链
         /// </summary>
         public IList<string> CallChain { get; set; }
-        public IList<TokenValue> Parameters { get; set; }
+        public IList<ITokenValue> Parameters { get; set; }
 
     }
 
