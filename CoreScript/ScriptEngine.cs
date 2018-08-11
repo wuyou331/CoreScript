@@ -10,7 +10,8 @@ namespace CoreScript
 {
     public class ScriptEngine
     {
-        public  IDictionary<string,ScriptVariable> GlobalVariable { get;  }= new ConcurrentDictionary<string, ScriptVariable>();
+        private IDictionary<string, ScriptFunction> _functions = null;
+        private IDictionary<string,ScriptVariable> _variable =null;
         public ScriptEngine()
         {
         }
@@ -20,17 +21,16 @@ namespace CoreScript
             var rs = Lexer.Analyzer(script);
             foreach (var token in rs.Where(it => it.TokenType == TokenType.Assignment))
             {
-                
+
             }
-
-            var main = rs.Where(it => it.TokenType == TokenType.FunctionDefine)
+            _variable = new ConcurrentDictionary<string, ScriptVariable>();
+            _functions = rs.Where(it => it.TokenType == TokenType.FunctionDefine)
                 .Cast<TokenFunctionDefine>()
-                .Single(it => it.Name == "main");
+                .Select(it => new ScriptFunction(it, this))
+                .ToDictionary(it => it.Name, it => it);
 
-
-
-            ScriptFunction func = new ScriptFunction(main, this);
-            func.Excute(null);
+            var main = _functions["main"];
+            main.Excute(null);
         }
     }
 }
