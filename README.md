@@ -9,7 +9,7 @@ C#编写的脚本语言库，目标是作为程序的胶水语言，可以调用
 * .Net框架资源调用
 
 
-··· C#
+```C#
 string script = "var age=18;" +
                 "" +
                 "func main(){" +
@@ -27,5 +27,5 @@ string script = "var age=18;" +
 var scritpEngine = new ScriptEngine();
 scritpEngine.Excute(script);
 Console.ReadLine();
-···
+```
 
