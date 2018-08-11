@@ -15,7 +15,10 @@ namespace CoreScript.Script
     {
         private readonly ScriptEngine _context;
 
-        private readonly IDictionary<string, ScriptVariable> _localVars = new Dictionary<string, ScriptVariable>();
+        /// <summary>
+        /// 函数内的局部变量
+        /// </summary>
+        private readonly IDictionary<string, ScriptVariable> _variable = new Dictionary<string, ScriptVariable>();
         private readonly TokenFunctionDefine _token;
 
         public ScriptFunction(TokenFunctionDefine token, ScriptEngine context)
@@ -43,7 +46,7 @@ namespace CoreScript.Script
         /// <param name="stement"></param>
         private void CallFunction(TokenAssignment stement)
         {
-            _context.ExcuteAssignment(stement, _localVars);
+            _context.ExcuteAssignment(stement, _variable);
         }
 
 
@@ -69,9 +72,9 @@ namespace CoreScript.Script
                 {
                     ScriptVariable vars = null;
                     //先找局部变量，在找全局变量
-                    if (_localVars.ContainsKey(varRef.Variable))
+                    if (_variable.ContainsKey(varRef.Variable))
                     {
-                        vars = _localVars[varRef.Variable];
+                        vars = _variable[varRef.Variable];
                     }
                     else if (_context.Variable.ContainsKey(varRef.Variable))
                     {
