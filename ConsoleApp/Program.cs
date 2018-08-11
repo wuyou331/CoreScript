@@ -7,14 +7,18 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            string script = "func main(){" +
+            string script = "var age=18;" +
+                            "" +
+                            "func main(){" +
                             "var name = \" \\\"wuyou \\\"\";" +
                             "Console.Write(\"my name is \");" +
                             "Console.WriteLine(name);" +
                             "name = 12345;"+
                             "Console.WriteLine(name);" +
-                            "Console.WriteLine(123);" +
-                            "Console.WriteLine(123.12);" +
+                            "}" +
+                            "" +
+                            "func test(){" +
+                            "Console.WriteLine(age);" +
                             "}";
             var scritpEngine = new ScriptEngine();
             scritpEngine.Excute(script);
