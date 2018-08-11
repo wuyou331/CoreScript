@@ -13,81 +13,85 @@ namespace CoreScript.Script
 
     public class ScriptFunction
     {
-        public string Name { get; set; }
-        private readonly TokenFunctionDefine _token;
+        private readonly ScriptEngine _context;
 
         private readonly IDictionary<string, ScriptVariable> _localVars = new Dictionary<string, ScriptVariable>();
+        private readonly TokenFunctionDefine _token;
 
         public ScriptFunction(TokenFunctionDefine token, ScriptEngine context)
         {
             _token = token;
-            this.Name = _token.Name;
+            _context = context;
+            Name = _token.Name;
         }
+
+        public string Name { get; set; }
 
         public object Excute(IList<object> args)
         {
-           
             foreach (var stement in _token.CodeBlock.Stements)
-            {
                 if (stement is TokenFunctionCallStement call)
-                    Excute(call);
+                    CallFunction(call);
                 else if (stement is TokenAssignment assignment)
-                    Excute(assignment);
-            }
+                    CallFunction(assignment);
             return null;
         }
 
         /// <summary>
-        /// 变量赋值
+        ///     变量赋值
         /// </summary>
         /// <param name="stement"></param>
-        private void Excute(TokenAssignment stement)
+        private void CallFunction(TokenAssignment stement)
         {
-            ScriptVariable varItem = null;
-            if (stement.Left is TokenVariableDefine define)
-            {
-                varItem = new ScriptVariable();
-                _localVars[define.Variable] = varItem;
-            }
-            else if (stement.Left is TokenVariableRef varRef)
-            {
-                varItem = _localVars[varRef.Variable];
-            }
-
-
-            if (stement.Right is TokenLiteral literal)
-            {
-                varItem.DataType = literal.DataType;
-                varItem.Value = literal.Value;
-            }
+            _context.ExcuteAssignment(stement, _localVars);
         }
 
+
         /// <summary>
-        /// 方法调用
+        ///     方法调用
         /// </summary>
         /// <param name="stement"></param>
         /// <returns></returns>
-        private object Excute(TokenFunctionCallStement stement)
+        private object CallFunction(TokenFunctionCallStement stement)
         {
             var first = stement.CallChain.First();
+
             var argTypes = new List<Type>();
             var paremeters = new List<object>();
             foreach (var value in stement.Parameters)
-            {
                 if (value is TokenLiteral literal)
                 {
-                    var dataType = GetTypeByString(literal.DataType);
+                    var dataType = _context.GetTypeByString(literal.DataType);
                     argTypes.Add(dataType);
                     paremeters.Add(literal.Value);
                 }
                 else if (value is TokenVariableRef varRef)
                 {
-                    var vars = _localVars[varRef.Variable];
-                    var dataType = GetTypeByString(vars.DataType);
+                    ScriptVariable vars = null;
+                    //先找局部变量，在找全局变量
+                    if (_localVars.ContainsKey(varRef.Variable))
+                    {
+                        vars = _localVars[varRef.Variable];
+                    }
+                    else if (_context.Variable.ContainsKey(varRef.Variable))
+                    {
+                        vars = _context.Variable[varRef.Variable];
+                    }
+       
+
+                    var dataType = _context.GetTypeByString(vars.DataType);
                     argTypes.Add(dataType);
                     paremeters.Add(vars.Value);
                 }
+
+            if (_context.Functions.ContainsKey(first))
+            {
+
+                return _context.Functions[first].Excute(paremeters);
             }
+
+
+
             //从程序集中找出名称和参数定义相同的方法
             var methods = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(it => it.DefinedTypes.Where(it1 => it1.Name == first)
@@ -99,26 +103,6 @@ namespace CoreScript.Script
             var method = methods.First();
 
             return method.Invoke(null, paremeters.ToArray());
-        }
-
-        /// <summary>
-        /// 根据字面量字符串获取Type类型
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private Type GetTypeByString(string type)
-        {
-            switch (type)
-            {
-                case nameof(Int32):
-                    return typeof(int);
-                case nameof(Double):
-                    return typeof(double);
-                case nameof(String):
-                    return typeof(string);
-                default:
-                    throw new Exception("未知的数据类型");
-            }
         }
     }
 }

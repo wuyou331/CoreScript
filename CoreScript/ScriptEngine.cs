@@ -1,36 +1,91 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using CoreScript.Script;
 using CoreScript.Tokens;
-using Sprache;
 
 namespace CoreScript
 {
     public class ScriptEngine
     {
-        private IDictionary<string, ScriptFunction> _functions = null;
-        private IDictionary<string,ScriptVariable> _variable =null;
-        public ScriptEngine()
-        {
-        }
+        private Dictionary<string, ScriptFunction> _functions;
+        private Dictionary<string, ScriptVariable> _variable;
+
+        /// <summary>
+        /// 函数定义
+        /// </summary>
+        public IDictionary<string, ScriptFunction> Functions => _functions;
+        /// <summary>
+        /// 全局变量
+        /// </summary>
+        public IDictionary<string, ScriptVariable> Variable => _variable;
 
         public void Excute(string script)
         {
             var rs = Lexer.Analyzer(script);
-            foreach (var token in rs.Where(it => it.TokenType == TokenType.Assignment))
-            {
+            _variable = new Dictionary<string, ScriptVariable>();
+            foreach (var token in rs.Where(it => it.TokenType == TokenType.AssignmentInit).Cast<TokenAssignment>())
+                ExcuteAssignment(token);
 
-            }
-            _variable = new ConcurrentDictionary<string, ScriptVariable>();
             _functions = rs.Where(it => it.TokenType == TokenType.FunctionDefine)
                 .Cast<TokenFunctionDefine>()
                 .Select(it => new ScriptFunction(it, this))
                 .ToDictionary(it => it.Name, it => it);
 
-            var main = _functions["main"];
+            var main = Functions["main"];
             main.Excute(null);
+        }
+
+        private void ExcuteAssignment(TokenAssignment stement)
+        {
+            ExcuteAssignment(stement, Variable);
+        }
+
+
+        /// <summary>
+        ///     变量赋值
+        /// </summary>
+        /// <param name="stement"></param>
+        internal void ExcuteAssignment(TokenAssignment stement, IDictionary<string, ScriptVariable> varDict)
+        {
+            ScriptVariable varItem = null;
+            if (stement.Left is TokenVariableDefine define)
+            {
+                varItem = new ScriptVariable();
+                varDict[define.Variable] = varItem;
+            }
+            else if (stement.Left is TokenVariableRef varRef)
+            {
+                varItem = varDict[varRef.Variable];
+            }
+
+
+            if (stement.Right is TokenLiteral literal)
+            {
+                varItem.DataType = literal.DataType;
+                varItem.Value = literal.Value;
+            }
+        }
+
+
+        /// <summary>
+        ///     根据字面量字符串获取Type类型
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal Type GetTypeByString(string type)
+        {
+            switch (type)
+            {
+                case nameof(Int32):
+                    return typeof(int);
+                case nameof(Double):
+                    return typeof(double);
+                case nameof(String):
+                    return typeof(string);
+                default:
+                    throw new Exception("未知的数据类型");
+            }
         }
     }
 }

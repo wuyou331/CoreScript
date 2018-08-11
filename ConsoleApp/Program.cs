@@ -15,6 +15,7 @@ namespace ConsoleApp
                             "Console.WriteLine(name);" +
                             "name = 12345;"+
                             "Console.WriteLine(name);" +
+                            "test();"+
                             "}" +
                             "" +
                             "func test(){" +
