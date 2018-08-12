@@ -3,24 +3,25 @@ using CoreScript;
 
 namespace ConsoleApp
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            string script = "var age=18;" +
-                            "" +
-                            "func main(){" +
-                            "var name = \" \\\"wuyou \\\"\";" +
-                            "Console.Write(\"my name is \");" +
-                            "Console.WriteLine(name);" +
-                            "name = 12345;"+
-                            "Console.WriteLine(name);" +
-                            "test();"+
-                            "}" +
-                            "" +
-                            "func test(){" +
-                            "Console.WriteLine(age);" +
-                            "}";
+            var script = "var age=18;" +
+                         "func main(){" +
+                         "   var name = \" \\\"wuyou \\\"\";" +
+                         "   print(\"my name is \");" +
+                         "   println(name);" +
+                         "   name = 12345;" +
+                         "   println(name);" +
+                         "   println(age);" +
+                         "}" +
+                         "func print(var str){" +
+                         "   Console.Write(str);" +
+                         "}" +
+                         "func println(var str){" +
+                         "   Console.WriteLine(str);" +
+                         "}";
             var scritpEngine = new ScriptEngine();
             scritpEngine.Excute(script);
             Console.ReadLine();

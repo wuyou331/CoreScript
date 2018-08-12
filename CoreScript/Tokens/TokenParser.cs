@@ -64,7 +64,7 @@ namespace CoreScript.Tokens
             from s2 in Parse.Char(')').Token()
             select new TokenTupleDefine
             {
-                Values = vars.ToArray().ToList()
+                Variables = vars.ToArray().ToList()
             }).Token();
 
 

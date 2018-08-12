@@ -33,7 +33,7 @@ namespace CoreScript
                 .ToDictionary(it => it.Name, it => it);
 
             var main = Functions["main"];
-            main.Excute(null);
+            main.Excute();
         }
 
         private void ExcuteAssignment(TokenAssignment stement)

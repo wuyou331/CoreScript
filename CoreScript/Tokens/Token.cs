@@ -62,7 +62,7 @@ namespace CoreScript.Tokens
     public class TokenTupleDefine : Token
     {
         public override TokenType TokenType => TokenType.TupleDefine;
-        public IList<TokenVariableDefine> Values { get; set; }
+        public IList<TokenVariableDefine> Variables { get; set; }
     }
 
     public class TokenTuple : Token
