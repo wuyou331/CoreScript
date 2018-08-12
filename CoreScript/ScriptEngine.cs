@@ -24,17 +24,22 @@ namespace CoreScript
         {
             var rs = Lexer.Analyzer(script);
             _variable = new Dictionary<string, ScriptVariable>();
+            //初始化全局变量
             foreach (var token in rs.Where(it => it.TokenType == TokenType.AssignmentInit).Cast<TokenAssignment>())
                 ExcuteAssignment(token);
-
+            //获取所有函数定义
             _functions = rs.Where(it => it.TokenType == TokenType.FunctionDefine)
                 .Cast<TokenFunctionDefine>()
                 .Select(it => new ScriptFunction(it, this))
                 .ToDictionary(it => it.Name, it => it);
 
+            if (!_functions.ContainsKey("main"))
+                throw new Exception("没有找到main方法");
+
             var main = Functions["main"];
             main.Excute();
         }
+
 
         private void ExcuteAssignment(TokenAssignment stement)
         {
