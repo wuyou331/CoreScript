@@ -9,7 +9,7 @@ namespace CoreScript.Tokens
     {
         public static IList<Token> Analyzer(string script)
         {
-            var parser = (TokenParser.FuncParser.Token().Or<Token>(FactorParser.Assignment).Token()).Many().End();
+            var parser = (TokenParser.FuncParser.Token().Or<Token>(TokenParser.Assignment).Token()).Many().End();
             var rs = parser.TryParse(script);
             return rs.Value.ToList();
         }

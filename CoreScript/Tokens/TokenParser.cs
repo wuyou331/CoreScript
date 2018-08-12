@@ -8,20 +8,17 @@ namespace CoreScript.Tokens
     public static class TokenParser
     {
         public static readonly Parser<TokenFunctionDefine> FuncParser =
-            (from id in FactorParser.Keyword("func").Token()
-                from name in FactorParser.Identifier
-                from args in FactorParser.TupleDefine.Optional()
-                from block in FactorParser.Block
+            (from id in Keyword("func").Token()
+                from name in Identifier
+                from args in TupleDefine.Optional()
+                from block in Block
                 select new TokenFunctionDefine
                 {
                     Name = name.Text(),
                     Parameters = args.GetOrDefault(() => new TokenTupleDefine()),
                     CodeBlock = block
                 }).Token();
-    }
 
-    public static class FactorParser
-    {
         public static readonly Func<string, Parser<string>> Keyword =
             keywork => (from s in Parse.String(keywork)
                 from s1 in Parse.WhiteSpace.AtLeastOnce()

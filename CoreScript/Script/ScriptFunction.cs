@@ -84,8 +84,7 @@ namespace CoreScript.Script
                         vars = _variable[varRef.Variable];
                     else if (_context.Variable.ContainsKey(varRef.Variable)) vars = _context.Variable[varRef.Variable];
                     
-                    if(vars==null) throw  new Exception("未找到的变量引用");
-                    var dataType = _context.GetTypeByString(vars.DataType);
+                    if(vars==null) throw  new Exception($@"未找到的变量引用：{varRef.Variable}");
                     paremeters.Add(vars);
                 }
             }
