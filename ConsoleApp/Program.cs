@@ -13,7 +13,7 @@ namespace ConsoleApp
                          "   print(\"my name is \");" +
                          "   println(name);" +
                          "   name = 12345;" +
-                         "   println(name1);" +
+                         "   println(name);" +
                          "   println(age);" +
                          "}" +
                          "func print(var str){" +

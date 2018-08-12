@@ -7,17 +7,7 @@ namespace CoreScript.Tokens
 {
     public static class TokenParser
     {
-        public static readonly Parser<TokenFunctionDefine> FuncParser =
-            (from id in Keyword("func").Token()
-                from name in Identifier
-                from args in TupleDefine.Optional()
-                from block in Block
-                select new TokenFunctionDefine
-                {
-                    Name = name.Text(),
-                    Parameters = args.GetOrDefault(() => new TokenTupleDefine()),
-                    CodeBlock = block
-                }).Token();
+
 
         public static readonly Func<string, Parser<string>> Keyword =
             keywork => (from s in Parse.String(keywork)
@@ -91,6 +81,12 @@ namespace CoreScript.Tokens
                     Value = double.Parse(sign.ToArray().Concat(a).Concat(n).Concat(c).Text())
                 }).Token();
 
+        /// <summary>
+        ///     ex: asfd\"
+        /// </summary>
+        private static readonly Parser<string> LiteralStringPart = from first in Parse.CharExcept("\\\"").Many()
+            from second in Parse.String("\\\"").Then(x => Parse.Return("\"")).Optional()
+            select first.Concat(second.GetOrDefault(() => string.Empty)).Text();
         public static readonly Parser<IReturnValue> LiteralString = (from open in Parse.Char('"')
             from content in LiteralStringPart.Many()
             from close in Parse.Char('"')
@@ -166,12 +162,19 @@ namespace CoreScript.Tokens
 
         #region Literal
 
-        /// <summary>
-        ///     ex: asfd\"
-        /// </summary>
-        private static readonly Parser<string> LiteralStringPart = from first in Parse.CharExcept("\\\"").Many()
-            from second in Parse.String("\\\"").Then(x => Parse.Return("\"")).Optional()
-            select first.Concat(second.GetOrDefault(() => string.Empty)).Text();
+
+        public static readonly Parser<TokenFunctionDefine> FuncParser =
+            (from id in Keyword("func").Token()
+                from name in Identifier
+                from args in TupleDefine.Optional()
+                from block in Block
+                select new TokenFunctionDefine
+                {
+                    Name = name.Text(),
+                    Parameters = args.GetOrDefault(() => new TokenTupleDefine()),
+                    CodeBlock = block
+                }).Token();
+
 
         #endregion
     }
