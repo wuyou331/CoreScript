@@ -14,12 +14,12 @@ namespace CoreScript.Script
     public class ScriptFunction
     {
         private readonly ScriptEngine _context;
+        private readonly TokenFunctionDefine _token;
 
         /// <summary>
-        /// 函数内的局部变量
+        ///     函数内的局部变量
         /// </summary>
-        private readonly IDictionary<string, ScriptVariable> _variable = new Dictionary<string, ScriptVariable>();
-        private readonly TokenFunctionDefine _token;
+        private  IDictionary<string, ScriptVariable> _variable = null;
 
         public ScriptFunction(TokenFunctionDefine token, ScriptEngine context)
         {
@@ -30,13 +30,22 @@ namespace CoreScript.Script
 
         public string Name { get; set; }
 
-        public object Excute(IList<object> args)
+        public object Excute(IList<ScriptVariable> args=null)
         {
+            if ((args?.Count??0) != _token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
+            _variable= new Dictionary<string, ScriptVariable>();
+            var index = 0;
+            foreach (var variableDefine in _token.Parameters.Variables)
+            {
+                var svar = args[index++];
+                _variable[variableDefine.Variable] = svar;
+            }
+
             foreach (var stement in _token.CodeBlock.Stements)
                 if (stement is TokenFunctionCallStement call)
-                    CallFunction(call);
+                    ExcuteCall(call);
                 else if (stement is TokenAssignment assignment)
-                    CallFunction(assignment);
+                    ExcutAassignment(assignment);
             return null;
         }
 
@@ -44,7 +53,7 @@ namespace CoreScript.Script
         ///     变量赋值
         /// </summary>
         /// <param name="stement"></param>
-        private void CallFunction(TokenAssignment stement)
+        private void ExcutAassignment(TokenAssignment stement)
         {
             _context.ExcuteAssignment(stement, _variable);
         }
@@ -55,44 +64,39 @@ namespace CoreScript.Script
         /// </summary>
         /// <param name="stement"></param>
         /// <returns></returns>
-        private object CallFunction(TokenFunctionCallStement stement)
+        private object ExcuteCall(TokenFunctionCallStement stement)
         {
             var first = stement.CallChain.First();
 
+            var paremeters = new List<ScriptVariable>();
             var argTypes = new List<Type>();
-            var paremeters = new List<object>();
+            var argValues = new List<object>();
             foreach (var value in stement.Parameters)
+            {
                 if (value is TokenLiteral literal)
                 {
                     var dataType = _context.GetTypeByString(literal.DataType);
                     argTypes.Add(dataType);
-                    paremeters.Add(literal.Value);
+                    argValues.Add(literal.Value);
+                    paremeters.Add(new ScriptVariable() {DataType = literal.DataType, Value = literal.Value});
                 }
                 else if (value is TokenVariableRef varRef)
                 {
                     ScriptVariable vars = null;
                     //先找局部变量，在找全局变量
                     if (_variable.ContainsKey(varRef.Variable))
-                    {
                         vars = _variable[varRef.Variable];
-                    }
-                    else if (_context.Variable.ContainsKey(varRef.Variable))
-                    {
-                        vars = _context.Variable[varRef.Variable];
-                    }
-       
-
+                    else if (_context.Variable.ContainsKey(varRef.Variable)) vars = _context.Variable[varRef.Variable];
+                    
+                    if(vars==null) throw  new Exception("未找到的变量引用");
                     var dataType = _context.GetTypeByString(vars.DataType);
                     argTypes.Add(dataType);
-                    paremeters.Add(vars.Value);
+                    argValues.Add(vars.Value);
+                    paremeters.Add(vars);
                 }
-
-            if (_context.Functions.ContainsKey(first))
-            {
-
-                return _context.Functions[first].Excute(paremeters);
             }
 
+            if (_context.Functions.ContainsKey(first)) return _context.Functions[first].Excute(paremeters);
 
 
             //从程序集中找出名称和参数定义相同的方法
@@ -105,7 +109,7 @@ namespace CoreScript.Script
             //   if(methods.Count()>1) throw new Exception("找到多个方法，无法确定调用哪个");
             var method = methods.First();
 
-            return method.Invoke(null, paremeters.ToArray());
+            return method.Invoke(null, argValues.ToArray());
         }
     }
 }
