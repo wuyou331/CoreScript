@@ -5,86 +5,75 @@ using CoreScript.Tokens;
 
 namespace CoreScript.Script
 {
-    public class ScriptVariable
+    public class ScriptValue
     {
         public string DataType { get; set; }
         public object Value { get; set; }
     }
 
-    public class ScriptCondition
-    {
-        private readonly TokenConditionBlock _block;
-        private readonly ScriptEngine _context;
-        private readonly IDictionary<string, ScriptVariable> _stackVariables;
-
-        public ScriptCondition(TokenConditionBlock block, ScriptEngine context, IDictionary<string, ScriptVariable> stackVariables )
-        {
-            _block = block;
-            _context = context;
-            _stackVariables = stackVariables;
-        }
-    }
 
     public class ScriptFunction
     {
-
-        private readonly ScriptEngine _context;
         private readonly TokenFunctionDefine _token;
+        private readonly ScriptEngine _context;
 
-        /// <summary>
-        ///     函数内的局部变量
-        /// </summary>
-        private  IDictionary<string, ScriptVariable> _variable = null;
-
-        public ScriptFunction(TokenFunctionDefine token, ScriptEngine context)
+        public ScriptFunction(TokenFunctionDefine token, ScriptEngine scriptEngine)
         {
             _token = token;
-            _context = context;
+            _context = scriptEngine;
             Name = _token.Name;
         }
 
         public string Name { get; set; }
 
-        public object Excute(IList<ScriptVariable> args=null)
+        public object Excute(VariableStack stack, IList<ScriptValue> args = null)
         {
             if ((args?.Count ?? 0) != _token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
-            _variable= new Dictionary<string, ScriptVariable>();
+
+
             var index = 0;
             foreach (var variableDefine in _token.Parameters.Variables)
             {
                 var svar = args[index++];
-                _variable[variableDefine.Variable] = svar;
+                stack.Push(variableDefine.Variable, svar);
             }
 
-            ExcuteBlock(_token.CodeBlock);
+            ExcuteBlock(_token.CodeBlock, stack);
+
+            stack.Pop(index);
             return null;
         }
 
-        public void ExcuteBlock(TokenBlockStement block)
+        /// <summary>
+        /// 执行代码块
+        /// </summary>
+        /// <param name="block"></param>
+        public void ExcuteBlock(TokenBlockStement block, VariableStack stack)
         {
-
+            var size = stack.Count();
             foreach (var stement in block.Stements)
                 if (stement is TokenFunctionCallStement call)
-                    ExcuteCall(call);
+                    ExcuteCall(call, stack);
                 else if (stement is TokenAssignment assignment)
-                    ExcutAassignment(assignment);
+                    ExcutAassignment(assignment, stack);
                 else if (stement is TokenConditionBlock condition)
-                    ExcuteCondition(condition);
+                    ExcuteCondition(condition, stack);
+            stack.Pop(stack.Count() - size);
         }
 
-        public void ExcuteCondition(TokenConditionBlock stement)
+        public void ExcuteCondition(TokenConditionBlock stement, VariableStack stack)
         {
-            var scriptVariable = ReturnValue(stement.Condition);
-            
+            var scriptVariable = ReturnValue(stement.Condition, stack);
+            if (scriptVariable.DataType != nameof(Boolean)) throw new Exception("非bool值");
         }
 
         /// <summary>
         ///     变量赋值
         /// </summary>
         /// <param name="stement"></param>
-        private void ExcutAassignment(TokenAssignment stement)
+        private void ExcutAassignment(TokenAssignment stement, VariableStack stack)
         {
-            _context.ExcuteAssignment(stement, _variable);
+            ScriptEngine.ExcuteAssignment(stement, stack);
         }
 
 
@@ -93,23 +82,17 @@ namespace CoreScript.Script
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        private ScriptVariable ReturnValue(IReturnValue value)
+        private ScriptValue ReturnValue(IReturnValue value, VariableStack stack)
         {
             if (value is TokenLiteral literal)
             {
-                return new ScriptVariable() { DataType = literal.DataType, Value = literal.Value };
+                return new ScriptValue() {DataType = literal.DataType, Value = literal.Value};
             }
             else if (value is TokenVariableRef varRef)
             {
-                ScriptVariable vars = null;
-                //先找局部变量，在找全局变量
-                if (_variable.ContainsKey(varRef.Variable))
-                    vars = _variable[varRef.Variable];
-                else if (_context.Variable.ContainsKey(varRef.Variable)) vars = _context.Variable[varRef.Variable];
-
-                if (vars == null) throw new Exception($"未找到的变量引用：{varRef.Variable}");
-                return vars;
+                return stack.Get(varRef.Variable);
             }
+
             throw new Exception("不支持的取值方式.");
         }
 
@@ -118,34 +101,29 @@ namespace CoreScript.Script
         /// </summary>
         /// <param name="stement"></param>
         /// <returns></returns>
-        private object ExcuteCall(TokenFunctionCallStement stement)
+        private object ExcuteCall(TokenFunctionCallStement stement, VariableStack stack)
         {
             var first = stement.CallChain.First();
 
-            var paremeters = new List<ScriptVariable>();
-     
+            var paremeters = new List<ScriptValue>();
             foreach (var value in stement.Parameters)
             {
-
-               var scriptVar = ReturnValue(value);
-
+                var scriptVar = ReturnValue(value, stack);
                 paremeters.Add(scriptVar);
             }
 
             if (_context.Functions.ContainsKey(first))
             {
                 //调用脚本中定义的函数
-                return _context.Functions[first].Excute(paremeters);
+                return _context.Functions[first].Excute(stack, paremeters);
             }
             else
             {
-
                 var argTypes = new List<Type>();
                 var argValues = new List<object>();
 
                 foreach (var paremeter in paremeters)
                 {
-
                     var dataType = _context.GetTypeByString(paremeter.DataType);
                     argTypes.Add(dataType);
                     argValues.Add(paremeter.Value);
@@ -164,8 +142,6 @@ namespace CoreScript.Script
 
                 return method.Invoke(null, argValues.ToArray());
             }
-
-        
         }
     }
 }
