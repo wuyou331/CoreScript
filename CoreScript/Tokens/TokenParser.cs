@@ -133,7 +133,7 @@ namespace CoreScript.Tokens
 
         #endregion
 
-        public static readonly Parser<IReturnValue> JudgmentExpression = 
+        public static readonly Parser<IReturnValue> JudgmentExpression =
             from first in Literal.Or(VariableRef).Token()
             from sign in Parse.String("==").Or(Parse.String("!=")).Token()
             from second in Literal.Or(VariableRef)
@@ -149,7 +149,7 @@ namespace CoreScript.Tokens
 
         #region if else Stement
 
-       
+
         private static readonly Parser<TokenConditionBlock> ElssIf =
         (
             from _else in Parse.String("else")
@@ -162,7 +162,7 @@ namespace CoreScript.Tokens
             from trueBlock in Block.Token()
             select new TokenConditionBlock()
             {
-                Value = LiteralBoolean.Parse("true"),
+                Condition = LiteralBoolean.Parse("true"),
                 TrueBlock = trueBlock
             }).Token();
 
@@ -176,7 +176,7 @@ namespace CoreScript.Tokens
             from _else in (ELSE.Or(Parse.Ref(() => ElssIf))).Optional()
             select new TokenConditionBlock()
             {
-                Value = expr,
+                Condition = expr,
                 TrueBlock = trueBlock,
                 Else = _else.GetOrDefault()
             }).Token();
@@ -216,7 +216,7 @@ namespace CoreScript.Tokens
                     Right = right
                 }).Token();
 
-        public static readonly Parser<TokenStement> Statement = CallMethodStatement.Or(Assignment);
+        public static readonly Parser<TokenStement> Statement = CallMethodStatement.Or(Assignment).Or(IFStement);
 
         #endregion
 

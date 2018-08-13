@@ -116,10 +116,12 @@ namespace CoreScript.Tokens
     /// <summary>
     /// if语句块
     /// </summary>
-    public class TokenConditionBlock : TokenStement
+    public class TokenConditionBlock : TokenStement,IReturnValue
     {
         public override TokenType TokenType => TokenType.Condition;
-        public IReturnValue Value { get; set; }
+        public string DataType { get; }
+
+        public IReturnValue Condition { get; set; }
         public TokenBlockStement TrueBlock { get; set; }
         public TokenConditionBlock Else { get; set; }
 
