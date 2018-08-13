@@ -71,5 +71,38 @@ namespace CoreScript.Test
             Assert.IsFalse(TokenParser.LiteralDouble.TryParse("-12.").WasSuccessful);
             Assert.IsFalse(TokenParser.LiteralDouble.TryParse("-.12").WasSuccessful);
         }
+        [TestMethod]
+        public void TestBoolean()
+        {
+            Assert.IsTrue(TokenParser.LiteralBoolean.TryParse("true").WasSuccessful);
+            Assert.IsTrue(TokenParser.LiteralBoolean.TryParse("false").WasSuccessful);
+
+            Assert.IsFalse(TokenParser.LiteralBoolean.TryParse("True").WasSuccessful);
+            Assert.IsFalse(TokenParser.LiteralBoolean.TryParse("False").WasSuccessful);
+        }
+
+        [TestMethod]
+        public void TestCondition()
+        {
+            var stement = TokenParser.IFStement.TryParse("if true then {}");
+            Assert.IsTrue(stement.WasSuccessful);
+            Assert.IsNull(stement.Value.Else);
+
+            stement = TokenParser.IFStement.TryParse("if true then {} else {}");
+            Assert.IsTrue(stement.WasSuccessful);
+            Assert.IsNotNull(stement.Value.Else);
+
+            stement = TokenParser.IFStement.TryParse("if true then {} else if false then {}");
+            Assert.IsTrue(stement.WasSuccessful);
+            Assert.IsNotNull(stement.Value.Else);
+            Assert.IsNull(stement.Value.Else.Else);
+
+            stement = TokenParser.IFStement.TryParse("if true then { } else if true then { } else { }");
+            Assert.IsTrue(stement.WasSuccessful);
+            Assert.IsTrue(stement.WasSuccessful);
+            Assert.IsNotNull(stement.Value.Else);
+            Assert.IsNotNull(stement.Value.Else.Else);
+            Assert.IsNull(stement.Value.Else.Else.Else);
+        }
     }
 }

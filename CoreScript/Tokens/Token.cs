@@ -101,6 +101,18 @@ namespace CoreScript.Tokens
     }
 
     /// <summary>
+    /// if语句块
+    /// </summary>
+    public class TokenConditionBlock : Token
+    {
+        public override TokenType TokenType => TokenType.Condition;
+        public IReturnValue Value { get; set; }
+        public TokenBlockStement TrueBlock { get; set; }
+        public TokenConditionBlock Else { get; set; }
+
+    }
+
+    /// <summary>
     /// 函数定义
     /// </summary>
     public class TokenFunctionDefine : Token
@@ -135,7 +147,7 @@ namespace CoreScript.Tokens
         /// <summary>
         /// 变量初始化
         /// </summary>
-        AssignmentInit,
+        AssignmentDefine,
         /// <summary>
         /// 变量赋值
         /// </summary>
@@ -146,7 +158,8 @@ namespace CoreScript.Tokens
         TupleDefine,
         Tuple,
         Identifier,
-        Literal
+        Literal,
+        Condition
 
     }
 }

@@ -7,8 +7,6 @@ namespace CoreScript.Tokens
 {
     public static class TokenParser
     {
-
-
         public static readonly Func<string, Parser<string>> Keyword =
             keywork => (from s in Parse.String(keywork)
                 from s1 in Parse.WhiteSpace.AtLeastOnce()
@@ -18,6 +16,8 @@ namespace CoreScript.Tokens
             from s1 in Parse.Letter.Or(Parse.Char('_')).Once()
             from s2 in Parse.LetterOrDigit.Or(Parse.Char('_')).Many()
             select s1.Concat(s2).Text();
+
+        #region Variable
 
         /// <summary>
         ///     ex:int a
@@ -32,6 +32,7 @@ namespace CoreScript.Tokens
                 }
             ).Token();
 
+
         /// <summary>
         ///     ex:int a,int b
         /// </summary>
@@ -42,6 +43,15 @@ namespace CoreScript.Tokens
                     select s22).Many()
                 select new List<TokenVariableDefine>(s1.Concat(s2))).Token();
 
+
+        public static readonly Parser<TokenVariableRef> VariableRef = from s in Identifier
+            select new TokenVariableRef
+            {
+                Variable = s
+            };
+        #endregion
+
+        #region Tuple
         /// <summary>
         ///     ex:(int a,int b)
         /// </summary>
@@ -55,50 +65,6 @@ namespace CoreScript.Tokens
             }).Token();
 
 
-        public static readonly Parser<TokenVariableRef> VariableRef = from s in Identifier
-            select new TokenVariableRef
-            {
-                Variable = s
-            };
-
-        public static readonly Parser<IReturnValue> LiteralInt =
-            (from sign in Parse.Char('-').Optional()
-                from n in Parse.Number.AtLeastOnce()
-                select new TokenLiteral
-                {
-                    DataType = nameof(Int32),
-                    Value = int.Parse(sign.ToArray().Concat(n).Text())
-                }).Token();
-
-        public static readonly Parser<IReturnValue> LiteralDouble =
-            (from sign in Parse.Char('-').Optional()
-                from a in Parse.Number.AtLeastOnce()
-                from n in Parse.Char('.').Once()
-                from c in Parse.Number.AtLeastOnce()
-                select new TokenLiteral
-                {
-                    DataType = nameof(Double),
-                    Value = double.Parse(sign.ToArray().Concat(a).Concat(n).Concat(c).Text())
-                }).Token();
-
-        /// <summary>
-        ///     ex: asfd\"
-        /// </summary>
-        private static readonly Parser<string> LiteralStringPart = from first in Parse.CharExcept("\\\"").Many()
-            from second in Parse.String("\\\"").Then(x => Parse.Return("\"")).Optional()
-            select first.Concat(second.GetOrDefault(() => string.Empty)).Text();
-        public static readonly Parser<IReturnValue> LiteralString = (from open in Parse.Char('"')
-            from content in LiteralStringPart.Many()
-            from close in Parse.Char('"')
-            select new TokenLiteral
-            {
-                DataType = nameof(String),
-                Value = content.Text()
-            }).Token();
-
-        public static readonly Parser<IReturnValue> Literal =
-            LiteralDouble.Or(LiteralInt).Or(LiteralString);
-
         /// <summary>
         ///     ex:("abc",id,123)
         /// </summary>
@@ -111,7 +77,98 @@ namespace CoreScript.Tokens
                     select argFirst.Concat(argOther)).Optional()
                 from right in Parse.Char(')').Token()
                 select args.ToArray()).Token();
+        #endregion
 
+        #region Literal
+
+        public static readonly Parser<IReturnValue> LiteralInt =
+            from sign in Parse.Char('-').Optional()
+                from n in Parse.Number.AtLeastOnce()
+                select new TokenLiteral
+                {
+                    DataType = nameof(Int32),
+                    Value = int.Parse(sign.ToArray().Concat(n).Text())
+                };
+
+        public static readonly Parser<IReturnValue> LiteralDouble =
+            from sign in Parse.Char('-').Optional()
+                from a in Parse.Number.AtLeastOnce()
+                from n in Parse.Char('.').Once()
+                from c in Parse.Number.AtLeastOnce()
+                select new TokenLiteral
+                {
+                    DataType = nameof(Double),
+                    Value = double.Parse(sign.ToArray().Concat(a).Concat(n).Concat(c).Text())
+                };
+
+        public static readonly Parser<IReturnValue> LiteralBoolean =
+            from val in Parse.String("true").Or(Parse.String("false"))
+                select new TokenLiteral
+                {
+                    DataType = nameof(Boolean),
+                    Value = bool.Parse(val.Text())
+                };
+
+        /// <summary>
+        ///     ex: asfd\"
+        /// </summary>
+        private static readonly Parser<string> LiteralStringPart = from first in Parse.CharExcept("\\\"").Many()
+            from second in Parse.String("\\\"").Then(x => Parse.Return("\"")).Optional()
+            select first.Concat(second.GetOrDefault(() => string.Empty)).Text();
+
+        public static readonly Parser<IReturnValue> LiteralString = (from open in Parse.Char('"')
+            from content in LiteralStringPart.Many()
+            from close in Parse.Char('"')
+            select new TokenLiteral
+            {
+                DataType = nameof(String),
+                Value = content.Text()
+            });
+
+        public static readonly Parser<IReturnValue> Literal =
+            LiteralBoolean.Or(LiteralDouble).Or(LiteralInt).Or(LiteralString);
+
+        #endregion
+
+
+
+        #region  stement: if/else call assingment
+
+        #region if else Stement
+
+        private static readonly Parser<TokenConditionBlock> ElssIf =
+        (
+            from _else in Parse.String("else")
+            from space1 in Parse.WhiteSpace.AtLeastOnce()
+            from _if in Parse.Ref(()=> IFStement)
+            select _if).Token();
+
+        private static readonly Parser<TokenConditionBlock> ELSE = (
+            from _if in Parse.String("else").Token()
+            from trueBlock in Block.Token()
+            select new TokenConditionBlock()
+            {
+                Value = LiteralBoolean.Parse("true"),
+                TrueBlock = trueBlock
+            }).Token();
+
+        public static readonly Parser<TokenConditionBlock> IFStement = (
+            from _if in Parse.String("if")
+            from space1 in Parse.WhiteSpace.AtLeastOnce()
+            from expr in LiteralBoolean
+            from space2 in Parse.WhiteSpace.AtLeastOnce()
+            from then in Parse.String("then")
+            from trueBlock in Block.Token()
+            from _else in (ELSE.Or(Parse.Ref(()=> ElssIf))).Optional()
+            select new TokenConditionBlock()
+            {
+                Value = expr,
+                TrueBlock = trueBlock,
+                Else = _else.GetOrDefault()
+            }).Token();
+
+
+        #endregion
 
         /// <summary>
         ///     ex:Console.WriteLine("123");
@@ -139,7 +196,7 @@ namespace CoreScript.Tokens
                 from right in Literal.Or(VariableRef).Or(CallMethodStatement)
                 from last in Parse.Char(';').Token()
                 select new TokenAssignment(left.TokenType == TokenType.VariableDefine
-                    ? TokenType.AssignmentInit
+                    ? TokenType.AssignmentDefine
                     : TokenType.Assignment)
                 {
                     Left = left,
@@ -147,6 +204,11 @@ namespace CoreScript.Tokens
                 }).Token();
 
         public static readonly Parser<TokenStement> Statement = CallMethodStatement.Or(Assignment);
+        #endregion
+
+        #region funciton
+
+
 
         /// <summary>
         ///     代码段
@@ -160,8 +222,6 @@ namespace CoreScript.Tokens
                 Stements = statements.ToList()
             }).Token();
 
-        #region Literal
-
 
         public static readonly Parser<TokenFunctionDefine> FuncParser =
             (from id in Keyword("func").Token()
@@ -174,7 +234,6 @@ namespace CoreScript.Tokens
                     Parameters = args.GetOrDefault(() => new TokenTupleDefine()),
                     CodeBlock = block
                 }).Token();
-
 
         #endregion
     }
