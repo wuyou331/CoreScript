@@ -133,7 +133,7 @@ namespace CoreScript.Tokens
 
         #endregion
 
-        public static readonly Parser<IReturnValue> JudgmentExpression =
+        public static readonly Parser<TokenJudgmentExpression> JudgmentExpression =
             from first in Literal.Or(VariableRef).Token()
             from sign in Parse.String("==").Or(Parse.String("!=")).Token()
             from second in Literal.Or(VariableRef)
@@ -143,6 +143,28 @@ namespace CoreScript.Tokens
                 Operator = sign.Text() == "==" ? JudgmentExpressionType.Equal : JudgmentExpressionType.NotEqual,
                 Right = second
             };
+
+
+
+        private static readonly Parser<TokenBinaryExpression> BinaryExpressionContent =
+            from left in LiteralDouble.Or(LiteralInt).Or(VariableDefine).Or(Parse.Ref(()=> BinaryExpressionSub)).Token()
+            from opt in Parse.Chars('+', '-', '*', '/', '%').Token()
+            from right in LiteralDouble.Or(LiteralInt).Or(VariableDefine).Or(Parse.Ref(() => BinaryExpressionSub)).Token()
+            select new TokenBinaryExpression()
+            {
+                Left = left,
+                Operator = opt,
+                Right = right
+            };
+
+        public static readonly Parser<TokenBinaryExpression> BinaryExpressionSub = 
+            from open in Parse.Char('(')
+                from left in Parse.Ref(()=> BinaryExpressionContent)
+            from close in Parse.Char(')')
+                select left;
+
+        public static readonly Parser<TokenBinaryExpression> BinaryExpression =
+            BinaryExpressionContent.Or(BinaryExpressionSub);
 
 
         #region  stement: if/else call assingment
@@ -204,9 +226,9 @@ namespace CoreScript.Tokens
         ///     ex: int a =1; or  a=1;
         /// </summary>
         public static readonly Parser<TokenStement> Assignment =
-            (from left in VariableDefine.Or<IReturnValue>(VariableRef)
+            (from left in VariableDefine.Or<IReturnValue>(VariableRef).Or(BinaryExpressionSub)
                 from cent in Parse.Char('=').Token()
-                from right in Literal.Or(VariableRef).Or(CallMethodStatement)
+                from right in Literal.Or(VariableRef).Or(BinaryExpressionSub)
                 from last in Parse.Char(';').Token()
                 select new TokenAssignment(left.TokenType == TokenType.VariableDefine
                     ? TokenType.AssignmentDefine

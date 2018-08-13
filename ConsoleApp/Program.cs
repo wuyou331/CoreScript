@@ -15,7 +15,9 @@ namespace ConsoleApp
                          "  if age!=name then{" +
                          "      name = name;" +
                          "  } else {" +
-                         "      name = 12345;" +
+                         "      name = 123+456;" +
+                         "      println(name);" +
+                         "      name= \"first code\";" +
                          "  }" +
                          "  println(name);" +
                          "  println(age);" +

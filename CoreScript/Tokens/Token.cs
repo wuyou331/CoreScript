@@ -19,7 +19,7 @@ namespace CoreScript.Tokens
     public interface IReturnValue
     {
         TokenType TokenType { get; }
-        string DataType { get;  }
+        string DataType { get; }
     }
 
 
@@ -43,6 +43,9 @@ namespace CoreScript.Tokens
         public string DataType { get; set; }
     }
 
+    /// <summary>
+    /// 变量定义
+    /// </summary>
     public class TokenVariableDefine : Token, IReturnValue
     {
         /// <summary>
@@ -57,9 +60,11 @@ namespace CoreScript.Tokens
 
 
         public override TokenType TokenType => TokenType.VariableDefine;
-
     }
 
+    /// <summary>
+    /// 元祖定义
+    /// </summary>
     public class TokenTupleDefine : Token
     {
         public override TokenType TokenType => TokenType.TupleDefine;
@@ -72,6 +77,17 @@ namespace CoreScript.Tokens
         public IList<IReturnValue> Parameters { get; set; }
     }
 
+    /// <summary>
+    /// 二元运算表达式
+    /// </summary>
+    public class TokenBinaryExpression : Token, IReturnValue
+    {
+        public IReturnValue Left { get; set; }
+        public char Operator { get; set; }
+        public IReturnValue Right { get; set; }
+        public override TokenType TokenType { get; }
+        public string DataType { get; }
+    }
 
     /// <summary>
     /// 语句
@@ -106,9 +122,9 @@ namespace CoreScript.Tokens
     /// </summary>
     public class TokenJudgmentExpression : IReturnValue
     {
-        public TokenType TokenType  => TokenType.JudgmentExpression;
-        public string DataType { get;  } = nameof(Boolean);
-        public  IReturnValue Left {get; set; }
+        public TokenType TokenType => TokenType.JudgmentExpression;
+        public string DataType { get; } = nameof(Boolean);
+        public IReturnValue Left { get; set; }
         public JudgmentExpressionType Operator { get; set; }
         public IReturnValue Right { get; set; }
     }
@@ -116,7 +132,7 @@ namespace CoreScript.Tokens
     /// <summary>
     /// if语句块
     /// </summary>
-    public class TokenConditionBlock : TokenStement,IReturnValue
+    public class TokenConditionBlock : TokenStement, IReturnValue
     {
         public override TokenType TokenType => TokenType.Condition;
         public string DataType { get; }
@@ -124,7 +140,6 @@ namespace CoreScript.Tokens
         public IReturnValue Condition { get; set; }
         public TokenBlockStement TrueBlock { get; set; }
         public TokenConditionBlock Else { get; set; }
-
     }
 
     /// <summary>
@@ -159,10 +174,12 @@ namespace CoreScript.Tokens
     {
         FunctionDefine,
         FunctionCall,
+
         /// <summary>
         /// 变量初始化
         /// </summary>
         AssignmentDefine,
+
         /// <summary>
         /// 变量赋值
         /// </summary>
@@ -174,11 +191,12 @@ namespace CoreScript.Tokens
         Tuple,
         Literal,
         Condition,
+
         /// <summary>
         /// 判断表达式
         /// </summary>
-        JudgmentExpression
-
+        JudgmentExpression,
+        BinaryExpression
     }
 
     public enum JudgmentExpressionType

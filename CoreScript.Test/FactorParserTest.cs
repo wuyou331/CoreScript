@@ -88,6 +88,16 @@ namespace CoreScript.Test
             Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("a==b").WasSuccessful);
             Assert.IsFalse(TokenParser.JudgmentExpression.TryParse("a=b").WasSuccessful);
         }
+        [TestMethod]
+
+        public void TestBinaryExpression()
+        {
+            Assert.IsTrue(TokenParser.BinaryExpression.TryParse("1+1").WasSuccessful);
+            var rs = TokenParser.BinaryExpression.TryParse("1+1+1");
+            Assert.IsTrue(rs.WasSuccessful);
+            Assert.IsNotNull(rs.Value.Right is TokenBinaryExpression );
+
+        }
 
         [TestMethod]
         public void TestCondition()
