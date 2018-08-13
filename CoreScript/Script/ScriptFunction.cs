@@ -102,6 +102,15 @@ namespace CoreScript.Script
             else if (value is TokenVariableRef varRef)
             {
                 return stack.Get(varRef.Variable);
+            }else if (value is TokenJudgmentExpression expr)
+            {
+                var left = ReturnValue(expr.Left, stack);
+                var right = ReturnValue(expr.Right, stack);
+                return new ScriptValue()
+                {
+                    DataType=nameof(Boolean),
+                    Value = left.Value.Equals(right.Value)
+                };
             }
 
             throw new Exception("不支持的取值方式.");
