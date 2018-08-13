@@ -80,11 +80,23 @@ namespace CoreScript.Test
             Assert.IsFalse(TokenParser.LiteralBoolean.TryParse("True").WasSuccessful);
             Assert.IsFalse(TokenParser.LiteralBoolean.TryParse("False").WasSuccessful);
         }
+        [TestMethod]
+        public void TestJudgmentExpression()
+        {
+            Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("1==1").WasSuccessful);
+            Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("1!=1").WasSuccessful);
+            Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("a==b").WasSuccessful);
+            Assert.IsFalse(TokenParser.JudgmentExpression.TryParse("a=b").WasSuccessful);
+        }
 
         [TestMethod]
         public void TestCondition()
         {
             var stement = TokenParser.IFStement.TryParse("if true then {}");
+            Assert.IsTrue(stement.WasSuccessful);
+            Assert.IsNull(stement.Value.Else);
+
+             stement = TokenParser.IFStement.TryParse("if 1==1 then {}");
             Assert.IsTrue(stement.WasSuccessful);
             Assert.IsNull(stement.Value.Else);
 

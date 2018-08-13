@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CoreScript.Tokens
 {
@@ -18,7 +19,7 @@ namespace CoreScript.Tokens
     public interface IReturnValue
     {
         TokenType TokenType { get; }
-        string DataType { get; set; }
+        string DataType { get;  }
     }
 
 
@@ -96,14 +97,26 @@ namespace CoreScript.Tokens
 
     public class TokenBlockStement : TokenStement
     {
-        public override TokenType TokenType => TokenType.FunctionCall;
+        public override TokenType TokenType => TokenType.Block;
         public IList<TokenStement> Stements { get; set; }
+    }
+
+    /// <summary>
+    /// 判断表达式
+    /// </summary>
+    public class TokenJudgmentExpression : IReturnValue
+    {
+        public TokenType TokenType  => TokenType.JudgmentExpression;
+        public string DataType { get;  } = nameof(Boolean);
+        public  IReturnValue Left {get; set; }
+        public JudgmentExpressionType Operator { get; set; }
+        public IReturnValue Right { get; set; }
     }
 
     /// <summary>
     /// if语句块
     /// </summary>
-    public class TokenConditionBlock : Token
+    public class TokenConditionBlock : TokenStement
     {
         public override TokenType TokenType => TokenType.Condition;
         public IReturnValue Value { get; set; }
@@ -157,9 +170,18 @@ namespace CoreScript.Tokens
         VariableRef,
         TupleDefine,
         Tuple,
-        Identifier,
         Literal,
-        Condition
+        Condition,
+        /// <summary>
+        /// 判断表达式
+        /// </summary>
+        JudgmentExpression
 
+    }
+
+    public enum JudgmentExpressionType
+    {
+        Equal,
+        NotEqual
     }
 }
