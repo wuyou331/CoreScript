@@ -60,12 +60,38 @@ namespace CoreScript
                 varItem = stack.Get(varRef.Variable) ;
             }
 
+            var right = ReturnValue(stement.Right,stack);
+            varItem.DataType = right.DataType;
+            varItem.Value = right.Value;
+        }
 
-            if (stement.Right is TokenLiteral literal)
+        /// <summary>
+        /// 取值
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        internal static ScriptValue ReturnValue(IReturnValue value, VariableStack stack)
+        {
+            if (value is TokenLiteral literal)
             {
-                varItem.DataType = literal.DataType;
-                varItem.Value = literal.Value;
+                return new ScriptValue() { DataType = literal.DataType, Value = literal.Value };
             }
+            else if (value is TokenVariableRef varRef)
+            {
+                return stack.Get(varRef.Variable);
+            }
+            else if (value is TokenJudgmentExpression expr)
+            {
+                var left = ReturnValue(expr.Left, stack);
+                var right = ReturnValue(expr.Right, stack);
+                return new ScriptValue()
+                {
+                    DataType = nameof(Boolean),
+                    Value = left.Value.Equals(right.Value)
+                };
+            }
+
+            throw new Exception("不支持的取值方式.");
         }
 
 

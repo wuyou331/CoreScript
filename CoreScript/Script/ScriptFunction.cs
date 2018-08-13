@@ -29,7 +29,7 @@ namespace CoreScript.Script
         public object Excute(VariableStack stack, IList<ScriptValue> args = null)
         {
             if ((args?.Count ?? 0) != _token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
-            
+
             var index = 0;
             foreach (var variableDefine in _token.Parameters.Variables)
             {
@@ -62,17 +62,17 @@ namespace CoreScript.Script
 
         public void ExcuteCondition(TokenConditionBlock stement, VariableStack stack)
         {
-            var scriptVariable = ReturnValue(stement.Condition, stack);
+            var scriptVariable = ScriptEngine.ReturnValue(stement.Condition, stack);
             if (scriptVariable.DataType != nameof(Boolean)) throw new Exception("非bool值");
             if (scriptVariable.Value is Boolean val)
             {
                 if (val)
                 {
-                    ExcuteBlock(stement.TrueBlock,stack);
+                    ExcuteBlock(stement.TrueBlock, stack);
                 }
-                else if(stement.Else != null)
+                else if (stement.Else != null)
                 {
-                    ExcuteCondition(stement.Else,stack);
+                    ExcuteCondition(stement.Else, stack);
                 }
             }
         }
@@ -88,34 +88,6 @@ namespace CoreScript.Script
 
 
         /// <summary>
-        /// 取值
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        private ScriptValue ReturnValue(IReturnValue value, VariableStack stack)
-        {
-            if (value is TokenLiteral literal)
-            {
-                return new ScriptValue() {DataType = literal.DataType, Value = literal.Value};
-            }
-            else if (value is TokenVariableRef varRef)
-            {
-                return stack.Get(varRef.Variable);
-            }else if (value is TokenJudgmentExpression expr)
-            {
-                var left = ReturnValue(expr.Left, stack);
-                var right = ReturnValue(expr.Right, stack);
-                return new ScriptValue()
-                {
-                    DataType=nameof(Boolean),
-                    Value = left.Value.Equals(right.Value)
-                };
-            }
-
-            throw new Exception("不支持的取值方式.");
-        }
-
-        /// <summary>
         ///     方法调用
         /// </summary>
         /// <param name="stement"></param>
@@ -127,7 +99,7 @@ namespace CoreScript.Script
             var paremeters = new List<ScriptValue>();
             foreach (var value in stement.Parameters)
             {
-                var scriptVar = ReturnValue(value, stack);
+                var scriptVar = ScriptEngine.ReturnValue(value, stack);
                 paremeters.Add(scriptVar);
             }
 

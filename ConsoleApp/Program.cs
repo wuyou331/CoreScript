@@ -12,10 +12,10 @@ namespace ConsoleApp
                          "  var name = \" \\\"wuyou \\\"\";" +
                          "  print(\"my name is \");" +
                          "  println(name);" +
-                         "  if age==19 then{" +
-                         "      name = 12345;" +
+                         "  if age!=name then{" +
+                         "      name = name;" +
                          "  } else {" +
-                         "      name = \"first code\";" +
+                         "      name = 12345;" +
                          "  }" +
                          "  println(name);" +
                          "  println(age);" +
