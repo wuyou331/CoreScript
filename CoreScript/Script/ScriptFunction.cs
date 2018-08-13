@@ -74,22 +74,8 @@ namespace CoreScript.Script
 
         public void ExcuteCondition(TokenConditionBlock stement)
         {
-            bool val = false;
-            if (stement.Condition is TokenLiteral literal)
-            {
-                if (literal.Value is bool _val)
-                    val = _val;
-                else if (literal.DataType != nameof(Boolean))
-                    throw new Exception("非Boolean类型。");
-            }
-            else if (stement.Condition is TokenVariableRef varRef)
-            {
-
-            }
-            else if (stement.Condition is TokenJudgmentExpression expr)
-            {
-
-            }
+            var scriptVariable = ReturnValue(stement.Condition);
+            
         }
 
         /// <summary>
@@ -101,6 +87,31 @@ namespace CoreScript.Script
             _context.ExcuteAssignment(stement, _variable);
         }
 
+
+        /// <summary>
+        /// 取值
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private ScriptVariable ReturnValue(IReturnValue value)
+        {
+            if (value is TokenLiteral literal)
+            {
+                return new ScriptVariable() { DataType = literal.DataType, Value = literal.Value };
+            }
+            else if (value is TokenVariableRef varRef)
+            {
+                ScriptVariable vars = null;
+                //先找局部变量，在找全局变量
+                if (_variable.ContainsKey(varRef.Variable))
+                    vars = _variable[varRef.Variable];
+                else if (_context.Variable.ContainsKey(varRef.Variable)) vars = _context.Variable[varRef.Variable];
+
+                if (vars == null) throw new Exception($"未找到的变量引用：{varRef.Variable}");
+                return vars;
+            }
+            throw new Exception("不支持的取值方式.");
+        }
 
         /// <summary>
         ///     方法调用
@@ -115,21 +126,10 @@ namespace CoreScript.Script
      
             foreach (var value in stement.Parameters)
             {
-                if (value is TokenLiteral literal)
-                {
-                    paremeters.Add(new ScriptVariable() {DataType = literal.DataType, Value = literal.Value});
-                }
-                else if (value is TokenVariableRef varRef)
-                {
-                    ScriptVariable vars = null;
-                    //先找局部变量，在找全局变量
-                    if (_variable.ContainsKey(varRef.Variable))
-                        vars = _variable[varRef.Variable];
-                    else if (_context.Variable.ContainsKey(varRef.Variable)) vars = _context.Variable[varRef.Variable];
-                    
-                    if(vars==null) throw  new Exception($@"未找到的变量引用：{varRef.Variable}");
-                    paremeters.Add(vars);
-                }
+
+               var scriptVar = ReturnValue(value);
+
+                paremeters.Add(scriptVar);
             }
 
             if (_context.Functions.ContainsKey(first))

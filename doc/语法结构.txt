@@ -1,0 +1,12 @@
+func id tuple(vardefine[,vardefine])
+block
+{
+    varDefine = varRef|Literal ;
+    callMethod(varRef|Literal[,varRef|Literal]) ;
+    if varRef|LiteralBoolean then
+    block
+    else if varRef|LiteralBooleanl then
+    block
+    else
+    block
+}
