@@ -154,7 +154,7 @@ namespace CoreScript.Tokens
         (
             from _else in Parse.String("else")
             from space1 in Parse.WhiteSpace.AtLeastOnce()
-            from _if in Parse.Ref(() => IFStement)
+            from _if in IFStement
             select _if).Token();
 
         private static readonly Parser<TokenConditionBlock> ELSE = (
@@ -173,7 +173,7 @@ namespace CoreScript.Tokens
             from space2 in Parse.WhiteSpace.AtLeastOnce()
             from then in Parse.String("then")
             from trueBlock in Block.Token()
-            from _else in (ELSE.Or(Parse.Ref(() => ElssIf))).Optional()
+            from _else in ELSE.Or(ElssIf).Optional()
             select new TokenConditionBlock()
             {
                 Condition = expr,

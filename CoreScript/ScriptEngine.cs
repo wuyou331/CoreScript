@@ -65,7 +65,6 @@ namespace CoreScript
                 varItem = varDict[varRef.Variable];
             }
 
-
             if (stement.Right is TokenLiteral literal)
             {
                 varItem.DataType = literal.DataType;

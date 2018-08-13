@@ -9,18 +9,22 @@ namespace ConsoleApp
         {
             var script = "var age=18;" +
                          "func main(){" +
-                         "   var name = \" \\\"wuyou \\\"\";" +
-                         "   print(\"my name is \");" +
-                         "   println(name);" +
-                         "   name = 12345;" +
-                         "   println(name);" +
-                         "   println(age);" +
+                         "  var name = \" \\\"wuyou \\\"\";" +
+                         "  print(\"my name is \");" +
+                         "  println(name);" +
+                         "  if false then{" +
+                         "      name = 12345;" +
+                         "  else {" +
+                         "      name = \"first code\";" +
+                         "  }" +
+                         "  println(name);" +
+                         "  println(age);" +
                          "}" +
                          "func print(var str){" +
-                         "   Console.Write(str);" +
+                         "  Console.Write(str);" +
                          "}" +
                          "func println(var str){" +
-                         "   Console.WriteLine(str);" +
+                         "  Console.WriteLine(str);" +
                          "}";
             var scritpEngine = new ScriptEngine();
             scritpEngine.Excute(script);

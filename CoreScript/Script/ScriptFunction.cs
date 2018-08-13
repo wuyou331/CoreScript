@@ -11,8 +11,23 @@ namespace CoreScript.Script
         public object Value { get; set; }
     }
 
+    public class ScriptCondition
+    {
+        private readonly TokenConditionBlock _block;
+        private readonly ScriptEngine _context;
+        private readonly IDictionary<string, ScriptVariable> _stackVariables;
+
+        public ScriptCondition(TokenConditionBlock block, ScriptEngine context, IDictionary<string, ScriptVariable> stackVariables )
+        {
+            _block = block;
+            _context = context;
+            _stackVariables = stackVariables;
+        }
+    }
+
     public class ScriptFunction
     {
+
         private readonly ScriptEngine _context;
         private readonly TokenFunctionDefine _token;
 
@@ -41,12 +56,40 @@ namespace CoreScript.Script
                 _variable[variableDefine.Variable] = svar;
             }
 
-            foreach (var stement in _token.CodeBlock.Stements)
+            ExcuteBlock(_token.CodeBlock);
+            return null;
+        }
+
+        public void ExcuteBlock(TokenBlockStement block)
+        {
+
+            foreach (var stement in block.Stements)
                 if (stement is TokenFunctionCallStement call)
                     ExcuteCall(call);
                 else if (stement is TokenAssignment assignment)
                     ExcutAassignment(assignment);
-            return null;
+                else if (stement is TokenConditionBlock condition)
+                    ExcuteCondition(condition);
+        }
+
+        public void ExcuteCondition(TokenConditionBlock stement)
+        {
+            bool val = false;
+            if (stement.Condition is TokenLiteral literal)
+            {
+                if (literal.Value is bool _val)
+                    val = _val;
+                else if (literal.DataType != nameof(Boolean))
+                    throw new Exception("非Boolean类型。");
+            }
+            else if (stement.Condition is TokenVariableRef varRef)
+            {
+
+            }
+            else if (stement.Condition is TokenJudgmentExpression expr)
+            {
+
+            }
         }
 
         /// <summary>
