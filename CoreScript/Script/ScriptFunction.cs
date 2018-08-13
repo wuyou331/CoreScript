@@ -29,8 +29,7 @@ namespace CoreScript.Script
         public object Excute(VariableStack stack, IList<ScriptValue> args = null)
         {
             if ((args?.Count ?? 0) != _token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
-
-
+            
             var index = 0;
             foreach (var variableDefine in _token.Parameters.Variables)
             {
