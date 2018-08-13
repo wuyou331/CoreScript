@@ -85,7 +85,7 @@ namespace CoreScript.Tokens
         public IReturnValue Left { get; set; }
         public char Operator { get; set; }
         public IReturnValue Right { get; set; }
-        public override TokenType TokenType { get; }
+        public override TokenType TokenType => TokenType.BinaryExpression;
         public string DataType { get; }
     }
 

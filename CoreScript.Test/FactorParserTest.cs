@@ -93,10 +93,12 @@ namespace CoreScript.Test
         public void TestBinaryExpression()
         {
             Assert.IsTrue(TokenParser.BinaryExpression.TryParse("1+1").WasSuccessful);
-            var rs = TokenParser.BinaryExpression.TryParse("1+1+1");
+            var rs = TokenParser.BinaryExpression.TryParse("1+2+3");
             Assert.IsTrue(rs.WasSuccessful);
-            Assert.IsNotNull(rs.Value.Right is TokenBinaryExpression );
-
+            Assert.IsNotNull(rs.Value.Left is TokenBinaryExpression );
+             rs = TokenParser.BinaryExpression.TryParse("5+(1+2)*3");
+            Assert.IsTrue(rs.WasSuccessful);
+            Assert.IsNotNull(rs.Value.Left is TokenBinaryExpression);
         }
 
         [TestMethod]

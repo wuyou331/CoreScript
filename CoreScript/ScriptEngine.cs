@@ -89,11 +89,29 @@ namespace CoreScript
                     DataType = nameof(Boolean),
                     Value = left.Value.Equals(right.Value)
                 };
+            }else if (value is TokenBinaryExpression binExpr)
+            {
+                return new ScriptValue()
+                {
+                    DataType = nameof(Double),
+                    Value = SumBinaryExpression(binExpr,stack)
+                };
             }
 
             throw new Exception("不支持的取值方式.");
         }
 
+        private static double SumBinaryExpression(TokenBinaryExpression expr,VariableStack stack)
+        {
+            var left = ReturnValue(expr.Left,stack);
+            var right = ReturnValue(expr.Right, stack);
+            switch (expr.Operator)
+            {
+                case '+':
+                    return (int)left.Value + (int)right.Value;
+            }
+            return 1;
+        }
 
         /// <summary>
         ///     根据字面量字符串获取Type类型
