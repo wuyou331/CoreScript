@@ -7,32 +7,32 @@ namespace CoreScript.Script
 {
     public class VariableStack : IEnumerable<KeyValuePair<string, ScriptValue>>
     {
-        private Stack<string> varKeys = null;
-        private SortedDictionary<string, ScriptValue> Variables = null;
+        private Stack<string> _keys = null;
+        private SortedDictionary<string, ScriptValue> _variables = null;
 
         public VariableStack()
         {
-            Variables = new SortedDictionary<string, ScriptValue>();
-            varKeys = new Stack<string>();
+            _variables = new SortedDictionary<string, ScriptValue>();
+            _keys = new Stack<string>();
         }
 
         public bool Contains(string key)
         {
-            return this.Variables.ContainsKey(key);
+            return this._variables.ContainsKey(key);
         }
 
 
         public ScriptValue Get(string key)
         {
             if (!Contains(key)) throw new Exception($"未找到的变量引用：{key}");
-            return Variables[key];
+            return _variables[key];
         }
 
         public void Set(string key, ScriptValue value)
         {
             if (!Contains(key)) throw new Exception("变量未声明");
 
-            Variables[key] = value;
+            _variables[key] = value;
         }
 
         /// <summary>
@@ -43,13 +43,13 @@ namespace CoreScript.Script
         public void Push(string key, ScriptValue value)
         {
             if (Contains(key)) throw new Exception("变量已存在");
-            varKeys.Push(key);
-            this.Variables.Add(key, value);
+            _keys.Push(key);
+            this._variables.Add(key, value);
         }
 
         public int Count()
         {
-            return this.varKeys.Count;
+            return this._keys.Count;
         }
 
         /// <summary>
@@ -60,14 +60,14 @@ namespace CoreScript.Script
         {
             for (int i = 0; i < num; i++)
             {
-                var key = varKeys.Pop();
-                this.Variables.Remove(key);
+                var key = _keys.Pop();
+                this._variables.Remove(key);
             }
         }
 
         public IEnumerator<KeyValuePair<string, ScriptValue>> GetEnumerator()
         {
-            return this.Variables.GetEnumerator();
+            return this._variables.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -65,6 +65,17 @@ namespace CoreScript.Script
         {
             var scriptVariable = ReturnValue(stement.Condition, stack);
             if (scriptVariable.DataType != nameof(Boolean)) throw new Exception("非bool值");
+            if (scriptVariable.Value is Boolean val)
+            {
+                if (val)
+                {
+                    ExcuteBlock(stement.TrueBlock,stack);
+                }
+                else if(stement.Else != null)
+                {
+                    ExcuteCondition(stement.Else,stack);
+                }
+            }
         }
 
         /// <summary>
