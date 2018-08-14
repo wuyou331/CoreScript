@@ -87,8 +87,7 @@ namespace CoreScript
         {
             var left = ReturnValue(expr.Left, stack);
             var right = ReturnValue(expr.Right, stack);
-            var rs = new ScriptValue();
-
+            
             switch (expr.Operator)
             {
                 #region 二元运算
@@ -96,103 +95,146 @@ namespace CoreScript
                 case '+':
                     if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
                     {
-                        rs.DataType = ScriptType.Int;
-                        rs.Value = (int) left.Value + (int) right.Value;
+                     return new ScriptValue
+                        {
+                            DataType = ScriptType.Int,
+                            Value = (int) left.Value + (int) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (int) left.Value + (double) right.Value;
-                        rs.DataType = ScriptType.Double;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Double,
+                            Value = (int) left.Value + (double) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (double) left.Value + (int) right.Value;
-                        rs.DataType = ScriptType.Double;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Double,
+                            Value = (double) left.Value + (int) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.String || right.DataType == ScriptType.String)
                     {
-                        rs.Value = left.Value + right.Value.ToString();
-                        rs.DataType = ScriptType.String;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.String,
+                            Value = left.Value + right.Value.ToString()
+                        };
                     }
-
-                    break;
+                    throw new Exception("不支持的运算数据类型");
                 case '-':
                     if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
                     {
-                        rs.DataType = ScriptType.Int;
-                        rs.Value = (int) left.Value - (int) right.Value;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Int,
+                            Value = (int) left.Value - (int) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (int) left.Value - (double) right.Value;
-                        rs.DataType = ScriptType.Double;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Double,
+                            Value = (int) left.Value - (double) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (double) left.Value - (int) right.Value;
-                        rs.DataType = ScriptType.Double;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Double,
+                            Value = (double) left.Value - (int) right.Value
+                        };
                     }
-
-                    break;
+                    throw new Exception("不支持的运算数据类型");
                 case '*':
                     if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
                     {
-                        rs.DataType = ScriptType.Int;
-                        rs.Value = (int) left.Value * (int) right.Value;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Int,
+                            Value = (int) left.Value * (int) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (int) left.Value * (double) right.Value;
-                        rs.DataType = ScriptType.Double;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Double,
+                            Value = (int) left.Value * (double) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (double) left.Value * (int) right.Value;
-                        rs.DataType = ScriptType.Double;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Double,
+                            Value = (double) left.Value * (int) right.Value
+                        };
                     }
-
-                    break;
+                    throw new Exception("不支持的运算数据类型");
                 case '/':
                     if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
                     {
-                        rs.DataType = ScriptType.Int;
-                        rs.Value = (int) left.Value / (int) right.Value;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Int,
+                            Value = (int) left.Value / (int) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (int) left.Value / (double) right.Value;
-                        rs.DataType = ScriptType.Double;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Double,
+                            Value = (int) left.Value / (double) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (double) left.Value / (int) right.Value;
-                        rs.DataType = ScriptType.Double;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Double,
+                            Value = (double) left.Value / (int) right.Value
+                        };
                     }
-
-                    break;
+                    throw new Exception("不支持的运算数据类型");
                 case '%':
                     if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
                     {
-                        rs.DataType = ScriptType.Int;
-                        rs.Value = (int) left.Value % (int) right.Value;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Int,
+                            Value = (int) left.Value % (int) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (int) left.Value % (double) right.Value;
-                        rs.DataType = ScriptType.Int;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Int,
+                            Value = (int) left.Value % (double) right.Value
+                        };
                     }
                     else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
                     {
-                        rs.Value = (double) left.Value % (int) right.Value;
-                        rs.DataType = ScriptType.Int;
+                        return new ScriptValue
+                        {
+                            DataType = ScriptType.Int,
+                            Value = (double) left.Value % (int) right.Value
+                        };
                     }
-
-                    break;
-
+                    throw new Exception("不支持的运算数据类型");
+                default:
+                    throw new Exception("不支持的运算符");
                 #endregion
             }
 
-            return rs;
         }
     }
 }
