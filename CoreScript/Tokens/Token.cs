@@ -11,6 +11,11 @@ namespace CoreScript.Tokens
         {
             return TokenType.ToString();
         }
+
+        public int Start { get; set; }
+        public int Postion { get; set; }
+
+
     }
 
     /// <summary>
