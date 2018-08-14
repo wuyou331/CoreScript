@@ -88,10 +88,7 @@ namespace CoreScript.Test
             Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("1!=1").WasSuccessful);
             Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("a==b").WasSuccessful);
             Assert.IsFalse(TokenParser.JudgmentExpression.TryParse("a=b").WasSuccessful);
-        }
-        [TestMethod]
-        public void TestAndExpression()
-        {
+   
             Assert.IsFalse(TokenParser.JudgmentExpression.TryParse("a").WasSuccessful);
 
             Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("1==1").WasSuccessful);
