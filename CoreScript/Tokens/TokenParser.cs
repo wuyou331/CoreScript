@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CoreScript.Script;
 using Sprache;
 
 namespace CoreScript.Tokens
