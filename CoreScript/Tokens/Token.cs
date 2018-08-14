@@ -14,7 +14,7 @@ namespace CoreScript.Tokens
     }
 
     /// <summary>
-    /// 字面量或者变量引用
+    /// 有返回值的语句或表达式
     /// </summary>
     public interface IReturnValue
     {

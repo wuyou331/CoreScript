@@ -2,6 +2,9 @@
 
 namespace CoreScript.Script
 {
+    /// <summary>
+    /// 脚本支持的基础数据类型
+    /// </summary>
     public static class ScriptType
     {
         internal const  string Int = nameof(Int32);

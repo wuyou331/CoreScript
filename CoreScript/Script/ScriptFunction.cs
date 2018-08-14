@@ -5,13 +5,6 @@ using CoreScript.Tokens;
 
 namespace CoreScript.Script
 {
-    public class ScriptValue
-    {
-        public string DataType { get; set; }
-        public object Value { get; set; }
-    }
-
-
     public class ScriptFunction
     {
         private readonly TokenFunctionDefine _token;
@@ -26,6 +19,12 @@ namespace CoreScript.Script
 
         public string Name { get; set; }
 
+        /// <summary>
+        /// 执行自定义方法
+        /// </summary>
+        /// <param name="stack"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public object Excute(VariableStack stack, IList<ScriptValue> args = null)
         {
             if ((args?.Count ?? 0) != _token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
@@ -59,7 +58,12 @@ namespace CoreScript.Script
                     ExcuteCondition(condition, stack);
             stack.Pop(stack.Count() - size);
         }
-
+        
+        /// <summary>
+        /// 执行条件语句
+        /// </summary>
+        /// <param name="stement"></param>
+        /// <param name="stack"></param>
         public void ExcuteCondition(TokenConditionBlock stement, VariableStack stack)
         {
             var scriptVariable = ScriptEngine.ReturnValue(stement.Condition, stack);

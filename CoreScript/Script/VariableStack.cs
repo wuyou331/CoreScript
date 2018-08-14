@@ -5,10 +5,13 @@ using System.Text;
 
 namespace CoreScript.Script
 {
+    /// <summary>
+    /// 变量栈
+    /// </summary>
     public class VariableStack : IEnumerable<KeyValuePair<string, ScriptValue>>
     {
-        private Stack<string> _keys = null;
-        private SortedDictionary<string, ScriptValue> _variables = null;
+        private readonly Stack<string> _keys = null;
+        private readonly SortedDictionary<string, ScriptValue> _variables = null;
 
         public VariableStack()
         {
@@ -16,18 +19,27 @@ namespace CoreScript.Script
             _keys = new Stack<string>();
         }
 
+
         public bool Contains(string key)
         {
             return this._variables.ContainsKey(key);
         }
 
-
+        /// <summary>
+        /// 获取一个变量
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public ScriptValue Get(string key)
         {
             if (!Contains(key)) throw new Exception($"未找到的变量引用：{key}");
             return _variables[key];
         }
-
+        /// <summary>
+        /// 为变量赋值
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         public void Set(string key, ScriptValue value)
         {
             if (!Contains(key)) throw new Exception("变量未声明");
@@ -64,6 +76,7 @@ namespace CoreScript.Script
                 this._variables.Remove(key);
             }
         }
+
 
         public IEnumerator<KeyValuePair<string, ScriptValue>> GetEnumerator()
         {
