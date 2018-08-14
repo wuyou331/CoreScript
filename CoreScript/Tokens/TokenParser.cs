@@ -141,8 +141,7 @@ namespace CoreScript.Tokens
 
         #endregion
 
-
-
+        #region  Judgment
         public static readonly Parser<TokenJudgmentExpression> JudgmentExpression =
             from first in Literal.Or(VariableRef).Token()
             from sign in Parse.String("==").Or(Parse.String("!=")).Token()
@@ -154,17 +153,40 @@ namespace CoreScript.Tokens
                 Right = second
             };
 
+        private static readonly Parser<IReturnValue> JudgmentExpressionFactor =
+        (from lparen in Parse.Char('(')
+            from expr in Parse.Ref(() => AndExpression)
+            from rparen in Parse.Char(')')
+            select expr).Or(JudgmentExpression);
+
+        private static readonly Parser<IReturnValue> JudgmentExpressionTerm =
+           JudgmentExpressionFactor
+            .Or(LiteralBoolean)
+            .Or(VariableRef).Token();
+
+        public static readonly Parser<IReturnValue> AndExpression = Parse
+            .ChainOperator(Parse.String("and").Or(Parse.String("or")).Token().Text(), JudgmentExpressionTerm, BuildTokenJudgmentExpression);
+
+        private static  TokenJudgmentExpression  BuildTokenJudgmentExpression(string opt, IReturnValue left, IReturnValue right)
+        {
+            return new TokenJudgmentExpression()
+            {
+                Left = left,
+                Right = right
+            };
+        }
+        #endregion
         #region BinaryExpression
 
         private static readonly Parser<IReturnValue> Factor =
             (from lparen in Parse.Char('(')
                 from expr in Parse.Ref(() => BinaryExpression)
                 from rparen in Parse.Char(')')
-                select expr).Named("expression");
+                select expr);
 
         private static readonly Parser<IReturnValue> Operand =
-            (LiteralDouble.Or(LiteralInt).Or(VariableRef).Or(LiteralString)
-            ).Or(Factor).Token();
+            LiteralDouble.Or(LiteralInt).Or(VariableRef).Or(LiteralString)
+                .Or(Factor).Token();
 
 
         private static readonly Parser<IReturnValue> Term =
