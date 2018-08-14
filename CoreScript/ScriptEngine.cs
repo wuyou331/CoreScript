@@ -83,7 +83,7 @@ namespace CoreScript
             throw new Exception("不支持的取值方式.");
         }
 
-        private static ScriptValue SumBinaryExpression(TokenBinaryExpression expr, VariableStack stack)
+        public static ScriptValue SumBinaryExpression(TokenBinaryExpression expr, VariableStack stack)
         {
             var left = ReturnValue(expr.Left, stack);
             var right = ReturnValue(expr.Right, stack);
