@@ -141,6 +141,8 @@ namespace CoreScript.Tokens
 
         #endregion
 
+
+
         public static readonly Parser<TokenJudgmentExpression> JudgmentExpression =
             from first in Literal.Or(VariableRef).Token()
             from sign in Parse.String("==").Or(Parse.String("!=")).Token()

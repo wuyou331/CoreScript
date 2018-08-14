@@ -11,18 +11,18 @@ namespace CoreScript.Tokens
         public static IList<Token> Analyzer(string script)
         {
             var index = 0;
-            var result = new List<Token>();
-            var tokens = TokenParser.FuncParser.Or<Token>(TokenParser.Assignment).Token();
+            var tokens = new List<Token>();
+            var parser = TokenParser.FuncParser.Or<Token>(TokenParser.Assignment).Token();
             while (index<script.Length)
             {
                 var source = script.Substring(index);
-                var rs = tokens.TryParse(source);
+                var rs = parser.TryParse(source);
                 if (rs.WasSuccessful)
                 {
                     rs.Value.Postion = rs.Remainder.Position;
                     rs.Value.Start = index;
-                    index = rs.Value.Postion;
-                    result.Add(rs.Value);
+                    index += rs.Value.Postion;
+                    tokens.Add(rs.Value);
                 }
                 else
                 {
@@ -30,7 +30,7 @@ namespace CoreScript.Tokens
                 }
             }
            
-            return result;
+            return tokens;
         }
     }
 }
