@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Sprache;
 
@@ -69,5 +70,25 @@ namespace CoreScript.Tokens
         {
             return strs.Concat(new[] { chrs.Text() });
         }
+
+        
+        public static Parser<U> ThenCast<T, U>(this Parser<T> first) where U:T
+        {
+            if (first == null)
+                throw new ArgumentNullException(nameof(first));
+
+            return i =>
+            {
+                var result = first(i);
+                if (result.WasSuccessful && result.Value is U val)
+                {
+                    return Parse.Return(val)(result.Remainder);
+                }
+
+                return Result.Failure<U>(result.Remainder, result.Message, result.Expectations);
+            };
+        }
+
+
     }
 }

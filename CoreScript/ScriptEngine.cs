@@ -91,27 +91,41 @@ namespace CoreScript
                 };
             }else if (value is TokenBinaryExpression binExpr)
             {
-                return new ScriptValue()
-                {
-                    DataType = nameof(Double),
-                    Value = SumBinaryExpression(binExpr,stack)
-                };
+                return SumBinaryExpression(binExpr, stack);
             }
 
             throw new Exception("不支持的取值方式.");
         }
 
-        private static double SumBinaryExpression(TokenBinaryExpression expr,VariableStack stack)
+        private static ScriptValue SumBinaryExpression(TokenBinaryExpression expr,VariableStack stack)
         {
             var left = ReturnValue(expr.Left,stack);
             var right = ReturnValue(expr.Right, stack);
+            var rs = new ScriptValue();
+            rs.DataType = left.DataType == right.DataType ? left.DataType : nameof(Double);
+
             switch (expr.Operator)
             {
                 case '+':
-                    return (int)left.Value + (int)right.Value;
+                    rs.Value = (int) left.Value + (int) right.Value;
+                    break;
+                case '-':
+                    rs.Value = (int) left.Value - (int) right.Value;
+                    break;
+                case '*':
+                    rs.Value = (int) left.Value * (int) right.Value;
+                    break;
+                case '/':
+                    rs.Value = (int) left.Value / (int) right.Value;
+                    break;
+                case '%':
+                    rs.Value = (int) left.Value % (int) right.Value;
+                    break;
             }
-            return 1;
+            return rs;
         }
+
+
 
         /// <summary>
         ///     根据字面量字符串获取Type类型

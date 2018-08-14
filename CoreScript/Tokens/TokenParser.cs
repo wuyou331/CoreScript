@@ -23,25 +23,25 @@ namespace CoreScript.Tokens
         ///     ex:int a
         /// </summary>
         public static readonly Parser<TokenVariableDefine> VariableDefine = (from type in Identifier
-            from space in Parse.WhiteSpace.AtLeastOnce()
-            from value in Identifier.Token()
-            select new TokenVariableDefine
-            {
-                DataType = type.Text(),
-                Variable = value.Text()
-            }
-        ).Token();
+                from space in Parse.WhiteSpace.AtLeastOnce()
+                from value in Identifier.Token()
+                select new TokenVariableDefine
+                {
+                    DataType = type.Text(),
+                    Variable = value.Text()
+                }
+            ).Token();
 
 
         /// <summary>
         ///     ex:int a,int b
         /// </summary>
         public static readonly Parser<IEnumerable<TokenVariableDefine>> Variables =
-        (from s1 in VariableDefine.Once()
-            from s2 in (from s21 in Parse.Char(',').Token()
-                from s22 in VariableDefine
-                select s22).Many()
-            select new List<TokenVariableDefine>(s1.Concat(s2))).Token();
+            (from s1 in VariableDefine.Once()
+                from s2 in (from s21 in Parse.Char(',').Token()
+                    from s22 in VariableDefine
+                    select s22).Many()
+                select new List<TokenVariableDefine>(s1.Concat(s2))).Token();
 
 
         public static readonly Parser<TokenVariableRef> VariableRef = from s in Identifier
@@ -71,14 +71,14 @@ namespace CoreScript.Tokens
         ///     ex:("abc",id,123)
         /// </summary>
         public static readonly Parser<IEnumerable<IReturnValue>> Tuple =
-        (from left in Parse.Char('(').Token()
-            from args in (from argFirst in VariableRef.Or(Literal).Once()
-                from argOther in (from comma in Parse.Char(',').Token()
-                    from argOtherItem in VariableRef.Or(Literal)
-                    select argOtherItem).Many()
-                select argFirst.Concat(argOther)).Optional()
-            from right in Parse.Char(')').Token()
-            select args.ToArray()).Token();
+            (from left in Parse.Char('(').Token()
+                from args in (from argFirst in VariableRef.Or(Literal).Once()
+                    from argOther in (from comma in Parse.Char(',').Token()
+                        from argOtherItem in VariableRef.Or(Literal)
+                        select argOtherItem).Many()
+                    select argFirst.Concat(argOther)).Optional()
+                from right in Parse.Char(')').Token()
+                select args.ToArray()).Token();
 
         #endregion
 
@@ -133,8 +133,6 @@ namespace CoreScript.Tokens
 
         #endregion
 
-        #region BinaryExpression
-
         public static readonly Parser<TokenJudgmentExpression> JudgmentExpression =
             from first in Literal.Or(VariableRef).Token()
             from sign in Parse.String("==").Or(Parse.String("!=")).Token()
@@ -146,17 +144,17 @@ namespace CoreScript.Tokens
                 Right = second
             };
 
+        #region BinaryExpression
 
         private static readonly Parser<IReturnValue> Factor =
             (from lparen in Parse.Char('(')
                 from expr in Parse.Ref(() => BinaryExpression)
                 from rparen in Parse.Char(')')
-                select expr).Named("expression")
-            .XOr(LiteralDouble.Or(LiteralInt).Or(VariableDefine));
+                select expr).Named("expression");
 
         private static readonly Parser<IReturnValue> Operand =
-        (LiteralDouble.Or(LiteralInt).Or(VariableDefine)
-        ).XOr(Factor).Token();
+            (LiteralDouble.Or(LiteralInt).Or(VariableRef)
+            ).Or(Factor).Token();
 
 
         private static readonly Parser<IReturnValue> Term =
@@ -166,8 +164,9 @@ namespace CoreScript.Tokens
         /// <summary>
         /// ex:1+1*(2+1)
         /// </summary>
-        public static readonly Parser<IReturnValue> BinaryExpression = Parse
-            .ChainOperator(Parse.Char('+').Or(Parse.Char('+')).Token(), Term, BuildExpression);
+        public static readonly Parser<TokenBinaryExpression> BinaryExpression = Parse
+            .ChainOperator(Parse.Char('+').Or(Parse.Char('-')).Token(), Term, BuildExpression)
+            .ThenCast<IReturnValue,TokenBinaryExpression>();
 
 
         private static TokenBinaryExpression BuildExpression(char opt, IReturnValue left, IReturnValue right)
@@ -225,34 +224,34 @@ namespace CoreScript.Tokens
         ///     ex:Console.WriteLine("123");
         /// </summary>
         public static readonly Parser<TokenFunctionCallStement> CallMethodStatement =
-        (from first in Identifier.Once().Token()
-            from other in (from s22 in Parse.Char('.')
-                from s23 in Identifier
-                select s23.Text()).Many()
-            from argResult in Tuple
-            from end in Parse.Char(';').Token()
-            select new TokenFunctionCallStement
-            {
-                CallChain = new List<string>(first.Concat(other)),
-                Parameters = argResult.ToList()
-            }
-        ).Token();
+            (from first in Identifier.Once().Token()
+                from other in (from s22 in Parse.Char('.')
+                    from s23 in Identifier
+                    select s23.Text()).Many()
+                from argResult in Tuple
+                from end in Parse.Char(';').Token()
+                select new TokenFunctionCallStement
+                {
+                    CallChain = new List<string>(first.Concat(other)),
+                    Parameters = argResult.ToList()
+                }
+            ).Token();
 
         /// <summary>
         ///     ex: int a =1; or  a=1;
         /// </summary>
         public static readonly Parser<TokenStement> Assignment =
-        (from left in VariableDefine.Or<IReturnValue>(VariableRef)
-            from opt in Parse.Char('=').Token()
-            from right in BinaryExpression.Or(Literal).Or(VariableRef)
-            from last in Parse.Char(';').Token()
-            select new TokenAssignment(left.TokenType == TokenType.VariableDefine
-                ? TokenType.AssignmentDefine
-                : TokenType.Assignment)
-            {
-                Left = left,
-                Right = right
-            }).Token();
+            (from left in VariableDefine.Or<IReturnValue>(VariableRef)
+                from opt in Parse.Char('=').Token()
+                from right in BinaryExpression.Or(Literal).Or(VariableRef)
+                from last in Parse.Char(';').Token()
+                select new TokenAssignment(left.TokenType == TokenType.VariableDefine
+                    ? TokenType.AssignmentDefine
+                    : TokenType.Assignment)
+                {
+                    Left = left,
+                    Right = right
+                }).Token();
 
         public static readonly Parser<TokenStement> Statement = CallMethodStatement.Or(Assignment).Or(IFStement);
 
@@ -274,16 +273,16 @@ namespace CoreScript.Tokens
 
 
         public static readonly Parser<TokenFunctionDefine> FuncParser =
-        (from id in Keyword("func").Token()
-            from name in Identifier
-            from args in TupleDefine.Optional()
-            from block in Block
-            select new TokenFunctionDefine
-            {
-                Name = name.Text(),
-                Parameters = args.GetOrDefault(() => new TokenTupleDefine()),
-                CodeBlock = block
-            }).Token();
+            (from id in Keyword("func").Token()
+                from name in Identifier
+                from args in TupleDefine.Optional()
+                from block in Block
+                select new TokenFunctionDefine
+                {
+                    Name = name.Text(),
+                    Parameters = args.GetOrDefault(() => new TokenTupleDefine()),
+                    CodeBlock = block
+                }).Token();
 
         #endregion
 
