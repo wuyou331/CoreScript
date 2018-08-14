@@ -8,11 +8,17 @@ namespace CoreScript.Tokens
 {
     public static class TokenParser
     {
+        /// <summary>
+        /// 关键字
+        /// </summary>
         public static readonly Func<string, Parser<string>> Keyword =
-            keywork => (from s in Parse.String(keywork)
-                from s1 in Parse.WhiteSpace.AtLeastOnce()
-                select new string(s.ToArray())).Token();
+            keywork => (from key in Parse.String(keywork)
+                from spacke in Parse.WhiteSpace.AtLeastOnce()
+                select new string(key.ToArray())).Token();
 
+        /// <summary>
+        /// 标识符
+        /// </summary>
         public static readonly Parser<string> Identifier =
             from s1 in Parse.Letter.Or(Parse.Char('_')).Once()
             from s2 in Parse.LetterOrDigit.Or(Parse.Char('_')).Many()
@@ -21,7 +27,7 @@ namespace CoreScript.Tokens
         #region Variable
 
         /// <summary>
-        ///     ex:int a
+        /// ex:int a
         /// </summary>
         public static readonly Parser<TokenVariableDefine> VariableDefine = (from type in Identifier
                 from space in Parse.WhiteSpace.AtLeastOnce()
@@ -35,14 +41,15 @@ namespace CoreScript.Tokens
 
 
         /// <summary>
-        ///     ex:int a,int b
+        /// ex:int a,int b
         /// </summary>
         public static readonly Parser<IEnumerable<TokenVariableDefine>> Variables =
             (from s1 in VariableDefine.Once()
-                from s2 in (from s21 in Parse.Char(',').Token()
-                    from s22 in VariableDefine
+                from s2 in (from s21 in Parse.Char(',')
+                    from s22 in VariableDefine.Token()
                     select s22).Many()
                 select new List<TokenVariableDefine>(s1.Concat(s2))).Token();
+
 
 
         public static readonly Parser<TokenVariableRef> VariableRef = from s in Identifier
@@ -167,7 +174,7 @@ namespace CoreScript.Tokens
         /// </summary>
         public static readonly Parser<TokenBinaryExpression> BinaryExpression = Parse
             .ChainOperator(Parse.Char('+').Or(Parse.Char('-')).Token(), Term, BuildExpression)
-            .ThenCast<IReturnValue,TokenBinaryExpression>();
+            .ThenCast<IReturnValue, TokenBinaryExpression>();
 
 
         private static TokenBinaryExpression BuildExpression(char opt, IReturnValue left, IReturnValue right)
@@ -218,8 +225,6 @@ namespace CoreScript.Tokens
             }).Token();
 
         #endregion
-
-        #region
 
         /// <summary>
         ///     ex:Console.WriteLine("123");
@@ -284,8 +289,6 @@ namespace CoreScript.Tokens
                     Parameters = args.GetOrDefault(() => new TokenTupleDefine()),
                     CodeBlock = block
                 }).Token();
-
-        #endregion
 
         #endregion
     }

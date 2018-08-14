@@ -30,7 +30,7 @@ namespace CoreScript.Test
         }
 
         [TestMethod]
-        public void TestFunctionArgs()
+        public void TestTupleDefine()
         {
             Assert.IsTrue(TokenParser.TupleDefine.TryParse("()").WasSuccessful);
             Assert.IsFalse(TokenParser.TupleDefine.TryParse("(a)").WasSuccessful);

@@ -72,6 +72,13 @@ namespace CoreScript.Tokens
         }
 
         
+        /// <summary>
+        /// 匹配的结果类型转换
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="U"></typeparam>
+        /// <param name="first"></param>
+        /// <returns></returns>
         public static Parser<U> ThenCast<T, U>(this Parser<T> first) where U:T
         {
             if (first == null)
