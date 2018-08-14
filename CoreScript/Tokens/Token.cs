@@ -207,6 +207,8 @@ namespace CoreScript.Tokens
     public enum JudgmentExpressionType
     {
         Equal,
-        NotEqual
+        NotEqual,
+        And,
+        Or
     }
 }

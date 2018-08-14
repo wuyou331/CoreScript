@@ -65,20 +65,37 @@ namespace CoreScript
             if (value is TokenVariableRef varRef) return stack.Get(varRef.Variable);
 
             if (value is TokenJudgmentExpression expr)
-            {
-                var left = ReturnValue(expr.Left, stack);
-                var right = ReturnValue(expr.Right, stack);
-                return new ScriptValue
-                {
-                    DataType = nameof(Boolean),
-                    Value = left.Value.Equals(right.Value)
-                };
-            }
+         
+                return ExcuteJudgment(expr, stack);
+       
 
             if (value is TokenBinaryExpression binExpr) return SumBinaryExpression(binExpr, stack);
 
             throw new Exception("不支持的取值方式.");
         }
+
+
+        public static ScriptValue ExcuteJudgment(TokenJudgmentExpression expr, VariableStack stack)
+        {
+            var left = ReturnValue(expr.Left, stack);
+            var right = ReturnValue(expr.Right, stack);
+            var result = new ScriptValue
+            {
+                DataType = nameof(Boolean),
+            };
+
+            if (expr.Operator == JudgmentExpressionType.Equal)
+                result.Value = left.Value.Equals(right.Value);
+            else if (expr.Operator == JudgmentExpressionType.NotEqual)
+                result.Value = !left.Value.Equals(right.Value);
+            else if (expr.Operator == JudgmentExpressionType.And)
+                result.Value = (bool) left.Value && (bool) right.Value;
+            else if (expr.Operator == JudgmentExpressionType.Or)
+                result.Value = (bool) left.Value || (bool) right.Value;
+
+            return result;
+        }
+
 
         /// <summary>
         ///     二元运算符计算

@@ -162,20 +162,23 @@ namespace CoreScript.Tokens
         private static readonly Parser<IReturnValue> JudgmentExpressionTerm =
            JudgmentExpressionFactor
             .Or(LiteralBoolean)
-            .Or(VariableRef).Token();
+            .Or(VariableRef);
 
-        public static readonly Parser<IReturnValue> AndExpression = Parse
-            .ChainOperator(Parse.String("and").Or(Parse.String("or")).Token().Text(), JudgmentExpressionTerm, BuildTokenJudgmentExpression);
+        public static readonly Parser<TokenJudgmentExpression> AndExpression = Parse
+            .ChainOperator(Parse.String("and").Or(Parse.String("or")).Token().Text(), JudgmentExpressionTerm, BuildTokenJudgmentExpression)
+            .ThenCast<IReturnValue,TokenJudgmentExpression>();
 
         private static  TokenJudgmentExpression  BuildTokenJudgmentExpression(string opt, IReturnValue left, IReturnValue right)
         {
             return new TokenJudgmentExpression()
             {
                 Left = left,
+                Operator = opt == "and" ? JudgmentExpressionType.And : JudgmentExpressionType.Or,
                 Right = right
             };
         }
         #endregion
+
         #region BinaryExpression
 
         private static readonly Parser<IReturnValue> Factor =
@@ -236,7 +239,7 @@ namespace CoreScript.Tokens
         public static readonly Parser<TokenConditionBlock> IFStement = (
             from _if in Parse.String("if")
             from space1 in Parse.WhiteSpace.AtLeastOnce()
-            from expr in (LiteralBoolean).Or(JudgmentExpression).Or(VariableRef)
+            from expr in AndExpression. Or(JudgmentExpression).Or(LiteralBoolean).Or(VariableRef)
             from space2 in Parse.WhiteSpace.AtLeastOnce()
             from then in Parse.String("then")
             from trueBlock in Block.Token()
