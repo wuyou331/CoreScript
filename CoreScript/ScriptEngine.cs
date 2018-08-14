@@ -34,6 +34,7 @@ namespace CoreScript
 
             var main = Functions["main"];
             main.Excute(stack);
+            stack.Pop(stack.Count());
         }
 
 
@@ -43,20 +44,15 @@ namespace CoreScript
         /// <param name="stement"></param>
         internal static void ExcuteAssignment(TokenAssignment stement, VariableStack stack)
         {
-            ScriptValue varItem = null;
             if (stement.Left is TokenVariableDefine define)
             {
-                varItem = new ScriptValue();
-                stack.Push(define.Variable, varItem);
+                stack.Push(define.Variable, ReturnValue(stement.Right, stack));
             }
             else if (stement.Left is TokenVariableRef varRef)
             {
-                varItem = stack.Get(varRef.Variable);
+                 stack.Set(varRef.Variable,  ReturnValue(stement.Right, stack));
             }
-
-            var right = ReturnValue(stement.Right, stack);
-            varItem.DataType = right.DataType;
-            varItem.Value = right.Value;
+            throw  new Exception("不支持的变量赋值");
         }
 
         /// <summary>

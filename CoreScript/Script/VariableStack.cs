@@ -36,7 +36,7 @@ namespace CoreScript.Script
         }
 
         /// <summary>
-        /// 将变量插入变量栈
+        /// 将变量插入变量栈，用于声明变量
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
