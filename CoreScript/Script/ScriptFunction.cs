@@ -115,7 +115,7 @@ namespace CoreScript.Script
 
                 foreach (var paremeter in paremeters)
                 {
-                    var dataType = _context.GetTypeByString(paremeter.DataType);
+                    var dataType = ScriptType.GetType(paremeter.DataType);
                     argTypes.Add(dataType);
                     argValues.Add(paremeter.Value);
                 }

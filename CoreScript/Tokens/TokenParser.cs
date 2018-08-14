@@ -89,7 +89,7 @@ namespace CoreScript.Tokens
             from n in Parse.Number.AtLeastOnce()
             select new TokenLiteral
             {
-                DataType = nameof(Int32),
+                DataType = ScriptType.Int,
                 Value = int.Parse(sign.ToArray().Concat(n).Text())
             };
 
@@ -100,7 +100,7 @@ namespace CoreScript.Tokens
             from c in Parse.Number.AtLeastOnce()
             select new TokenLiteral
             {
-                DataType = nameof(Double),
+                DataType = ScriptType.Double,
                 Value = double.Parse(sign.ToArray().Concat(a).Concat(n).Concat(c).Text())
             };
 
@@ -108,7 +108,7 @@ namespace CoreScript.Tokens
             from val in Parse.String("true").Or(Parse.String("false"))
             select new TokenLiteral
             {
-                DataType = nameof(Boolean),
+                DataType = ScriptType.Boolean,
                 Value = bool.Parse(val.Text())
             };
 
@@ -124,7 +124,7 @@ namespace CoreScript.Tokens
             from close in Parse.Char('"')
             select new TokenLiteral
             {
-                DataType = nameof(String),
+                DataType = ScriptType.String,
                 Value = content.Text()
             });
 
@@ -153,7 +153,7 @@ namespace CoreScript.Tokens
                 select expr).Named("expression");
 
         private static readonly Parser<IReturnValue> Operand =
-            (LiteralDouble.Or(LiteralInt).Or(VariableRef)
+            (LiteralDouble.Or(LiteralInt).Or(VariableRef).Or(LiteralString)
             ).Or(Factor).Token();
 
 

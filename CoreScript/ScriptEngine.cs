@@ -102,51 +102,107 @@ namespace CoreScript
             var left = ReturnValue(expr.Left,stack);
             var right = ReturnValue(expr.Right, stack);
             var rs = new ScriptValue();
-            rs.DataType = left.DataType == right.DataType ? left.DataType : nameof(Double);
 
             switch (expr.Operator)
             {
+                #region 二元运算
                 case '+':
-                    rs.Value = (int) left.Value + (int) right.Value;
+                    if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
+                    {
+                        rs.DataType = ScriptType.Int;
+                        rs.Value = (int) left.Value + (int) right.Value;
+                    }
+                    else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (int)left.Value + (double)right.Value;
+                        rs.DataType = ScriptType.Double;
+                    }
+                    else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (double)left.Value + (int)right.Value;
+                        rs.DataType = ScriptType.Double;
+                    }
+                    else if (left.DataType == ScriptType.String || right.DataType == ScriptType.String)
+                    {
+                        rs.Value = left.Value.ToString() + right.Value.ToString();
+                        rs.DataType = ScriptType.String;
+                    }
                     break;
                 case '-':
-                    rs.Value = (int) left.Value - (int) right.Value;
+                    if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
+                    {
+                        rs.DataType = ScriptType.Int;
+                        rs.Value = (int)left.Value - (int)right.Value;
+                    }
+                    else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (int)left.Value - (double)right.Value;
+                        rs.DataType = ScriptType.Double;
+                    }
+                    else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (double)left.Value - (int)right.Value;
+                        rs.DataType = ScriptType.Double;
+                    }
                     break;
                 case '*':
-                    rs.Value = (int) left.Value * (int) right.Value;
+                    if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
+                    {
+                        rs.DataType = ScriptType.Int;
+                        rs.Value = (int)left.Value * (int)right.Value;
+                    }
+                    else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (int)left.Value * (double)right.Value;
+                        rs.DataType = ScriptType.Double;
+                    }
+                    else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (double)left.Value * (int)right.Value;
+                        rs.DataType = ScriptType.Double;
+                    }
                     break;
                 case '/':
-                    rs.Value = (int) left.Value / (int) right.Value;
+                    if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
+                    {
+                        rs.DataType = ScriptType.Int;
+                        rs.Value = (int)left.Value / (int)right.Value;
+                    }
+                    else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (int)left.Value / (double)right.Value;
+                        rs.DataType = ScriptType.Double;
+                    }
+                    else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (double)left.Value / (int)right.Value;
+                        rs.DataType = ScriptType.Double;
+                    }
                     break;
                 case '%':
-                    rs.Value = (int) left.Value % (int) right.Value;
+                    if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
+                    {
+                        rs.DataType = ScriptType.Int;
+                        rs.Value = (int)left.Value % (int)right.Value;
+                    }
+                    else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (int)left.Value % (double)right.Value;
+                        rs.DataType = ScriptType.Int;
+                    }
+                    else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
+                    {
+                        rs.Value = (double)left.Value % (int)right.Value;
+                        rs.DataType = ScriptType.Int;
+                    }
                     break;
+#endregion
             }
             return rs;
         }
 
 
 
-        /// <summary>
-        ///     根据字面量字符串获取Type类型
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        internal Type GetTypeByString(string type)
-        {
-            switch (type)
-            {
-                case nameof(Int32):
-                    return typeof(int);
-                case nameof(Double):
-                    return typeof(double);
-                case nameof(String):
-                    return typeof(string);
-                case nameof(Boolean):
-                    return typeof(bool);
-                default:
-                    throw new Exception("未知的数据类型");
-            }
-        }
+
     }
 }
