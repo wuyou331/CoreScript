@@ -142,7 +142,7 @@ namespace CoreScript.Tokens
         #endregion
 
         #region  Judgment
-        public static readonly Parser<TokenJudgmentExpression> JudgmentExpression =
+        private static readonly Parser<TokenJudgmentExpression> JudgmentExpressionFactor =
             from first in Literal.Or(VariableRef).Token()
             from sign in Parse.String("==").Or(Parse.String("!=")).Token()
             from second in Literal.Or(VariableRef)
@@ -153,18 +153,15 @@ namespace CoreScript.Tokens
                 Right = second
             };
 
-        private static readonly Parser<IReturnValue> JudgmentExpressionFactor =
-        (from lparen in Parse.Char('(')
-            from expr in Parse.Ref(() => AndExpression)
-            from rparen in Parse.Char(')')
-            select expr).Or(JudgmentExpression);
-
         private static readonly Parser<IReturnValue> JudgmentExpressionTerm =
-           JudgmentExpressionFactor
-            .Or(LiteralBoolean)
+        (from lparen in Parse.Char('(')
+            from expr in Parse.Ref(() => JudgmentExpression)
+            from rparen in Parse.Char(')')
+            select expr).Or(JudgmentExpressionFactor).Or(LiteralBoolean)
             .Or(VariableRef);
 
-        public static readonly Parser<TokenJudgmentExpression> AndExpression = Parse
+
+        public static readonly Parser<TokenJudgmentExpression> JudgmentExpression = Parse
             .ChainOperator(Parse.String("and").Or(Parse.String("or")).Token().Text(), JudgmentExpressionTerm, BuildTokenJudgmentExpression)
             .ThenCast<IReturnValue,TokenJudgmentExpression>();
 
@@ -239,7 +236,7 @@ namespace CoreScript.Tokens
         public static readonly Parser<TokenConditionBlock> IFStement = (
             from _if in Parse.String("if")
             from space1 in Parse.WhiteSpace.AtLeastOnce()
-            from expr in AndExpression. Or(JudgmentExpression).Or(LiteralBoolean).Or(VariableRef)
+            from expr in JudgmentExpression.Or(LiteralBoolean).Or(VariableRef)
             from space2 in Parse.WhiteSpace.AtLeastOnce()
             from then in Parse.String("then")
             from trueBlock in Block.Token()

@@ -92,47 +92,47 @@ namespace CoreScript.Test
         [TestMethod]
         public void TestAndExpression()
         {
-            Assert.IsFalse(TokenParser.AndExpression.TryParse("a").WasSuccessful);
+            Assert.IsFalse(TokenParser.JudgmentExpression.TryParse("a").WasSuccessful);
 
-            Assert.IsTrue(TokenParser.AndExpression.TryParse("1==1").WasSuccessful);
+            Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("1==1").WasSuccessful);
 
-            var rs = TokenParser.AndExpression.TryParse("a==b and c==d");
+            var rs = TokenParser.JudgmentExpression.TryParse("a==b and c==d");
             Assert.IsTrue(rs.WasSuccessful);
             Assert.IsTrue(rs.Value.Left is TokenJudgmentExpression);
             Assert.IsTrue(rs.Value.Right is TokenJudgmentExpression);
 
-            rs = TokenParser.AndExpression.TryParse("(a==b) and (c==d)");
+            rs = TokenParser.JudgmentExpression.TryParse("(a==b) and (c==d)");
             Assert.IsTrue(rs.WasSuccessful);
             Assert.IsTrue(rs.Value.Left is TokenJudgmentExpression);
             Assert.IsTrue(rs.Value.Right is TokenJudgmentExpression);
 
 
-            rs = TokenParser.AndExpression.TryParse("a==b or 1==1");
+            rs = TokenParser.JudgmentExpression.TryParse("a==b or 1==1");
             Assert.IsTrue(rs.WasSuccessful);
             Assert.IsTrue(rs.Value.Left is TokenJudgmentExpression);
             Assert.IsTrue(rs.Value.Right is TokenJudgmentExpression);
 
-            rs = TokenParser.AndExpression.TryParse("a and b");
+            rs = TokenParser.JudgmentExpression.TryParse("a and b");
             Assert.IsTrue(rs.WasSuccessful);
             Assert.IsTrue(rs.Value.Left is TokenVariableRef);
             Assert.IsTrue(rs.Value.Right is TokenVariableRef);
 
-            rs = TokenParser.AndExpression.TryParse("true or false");
+            rs = TokenParser.JudgmentExpression.TryParse("true or false");
             Assert.IsTrue(rs.WasSuccessful);
             Assert.IsTrue(rs.Value.Left is TokenLiteral);
             Assert.IsTrue(rs.Value.Right is TokenLiteral);
 
-            Assert.IsTrue(TokenParser.AndExpression.TryParse("a==b and b").WasSuccessful);
-            Assert.IsTrue(TokenParser.AndExpression.TryParse("(a==b) and b").WasSuccessful);
-            Assert.IsTrue(TokenParser.AndExpression.TryParse("a and b==c").WasSuccessful);
-            Assert.IsTrue(TokenParser.AndExpression.TryParse("a and (b==c)").WasSuccessful);
+            Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("a==b and b").WasSuccessful);
+            Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("(a==b) and b").WasSuccessful);
+            Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("a and b==c").WasSuccessful);
+            Assert.IsTrue(TokenParser.JudgmentExpression.TryParse("a and (b==c)").WasSuccessful);
 
-            rs = TokenParser.AndExpression.TryParse("a==b and c==d and e==f");
+            rs = TokenParser.JudgmentExpression.TryParse("a==b and c==d and e==f");
             Assert.IsTrue(rs.WasSuccessful);
             Assert.IsTrue(rs.Value.Left is TokenJudgmentExpression);
             Assert.IsTrue(rs.Value.Right is TokenJudgmentExpression);
 
-            rs = TokenParser.AndExpression.TryParse("a==b and (c==d and e==f)");
+            rs = TokenParser.JudgmentExpression.TryParse("a==b and (c==d and e==f)");
             Assert.IsTrue(rs.WasSuccessful);
             Assert.IsTrue(rs.Value.Left is TokenJudgmentExpression );
             Assert.IsNotNull(rs.Value);
