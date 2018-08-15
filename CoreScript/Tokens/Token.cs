@@ -130,10 +130,12 @@ namespace CoreScript.Tokens
     /// <summary>
     /// 代码块
     /// </summary>
-    public class TokenBlockStement : TokenStement
+    public class TokenBlockStement : TokenStement,IReturnValue
     {
         public override TokenType TokenType => TokenType.Block;
         public IList<TokenStement> Stements { get; set; }
+        public string DataType { get; } = ScriptType.Void;
+        public TokenVariableDefine ReturnValue { get; set; }
     }
 
     /// <summary>
@@ -170,7 +172,6 @@ namespace CoreScript.Tokens
         public string Name { get; set; }
         public TokenTupleDefine Parameters { get; set; }
         public TokenBlockStement CodeBlock { get; set; }
-
         public TokenVariableDefine ReturnValue { get; set; }
     }
 
