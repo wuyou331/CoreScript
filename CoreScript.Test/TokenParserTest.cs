@@ -184,7 +184,27 @@ namespace CoreScript.Test
             Assert.IsNotNull(stement.Value.Else.Else);
             Assert.IsNull(stement.Value.Else.Else.Else);
         }
+        [TestMethod]
+        public void TestReturnStement()
+        {
+            Assert.IsTrue(TokenParser.ReturnStement.TryParse("return a;").WasSuccessful);
+            Assert.IsTrue(TokenParser.ReturnStement.TryParse("return a and b;").WasSuccessful);
+            Assert.IsTrue(TokenParser.ReturnStement.TryParse("return 1+1;").WasSuccessful);
+            Assert.IsFalse(TokenParser.ReturnStement.TryParse("return  ;").WasSuccessful);
+        }
 
+        [TestMethod]
+        public void TestBlock()
+        {
+            var script = "{var i=0;" +
+                         "return i;" +
+                         "var a=1;" +
+                         "}";
+            var result = TokenParser.Block.TryParse(script);
+            Assert.IsTrue(result.WasSuccessful);
+            Assert.AreEqual(result.Value.Stements.Count(),2);
+        }
+        
         [TestMethod]
         public void TestFuncParser()
         {

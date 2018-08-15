@@ -96,6 +96,28 @@ namespace CoreScript.Tokens
             };
         }
 
+        /// <summary>
+        /// 截断集合
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="lastItemFunc">为true时终止阶段</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IList<T> Slice<T>(this IEnumerable<T> list,Func<T,bool> lastItemFunc)
+        {
+            var result = new List<T>();
+            foreach (var item in list)
+            {
+                if (lastItemFunc(item))
+                {
+                    result.Add(item);
+                    break;
+                }
+                result.Add(item);
+            }
+
+            return result;
+        }
 
     }
 }

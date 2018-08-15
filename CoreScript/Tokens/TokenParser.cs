@@ -161,6 +161,9 @@ namespace CoreScript.Tokens
             .Or(VariableRef);
 
 
+        /// <summary>
+        /// ex: a==b and 1==1 or a
+        /// </summary>
         public static readonly Parser<TokenJudgmentExpression> JudgmentExpression = Parse
             .ChainOperator(Parse.String("and").Or(Parse.String("or")).Token().Text(), JudgmentExpressionTerm, BuildTokenJudgmentExpression)
             .ThenCast<IReturnValue,TokenJudgmentExpression>();
@@ -250,6 +253,20 @@ namespace CoreScript.Tokens
 
         #endregion
 
+
+
+        /// <summary>
+        /// return 1; return a; return 1+1; return a ==b ; return a and 1==2
+        /// </summary>
+        public static readonly Parser<TokenReturnStement> ReturnStement =
+            from ret in Keyword("return")
+            from val in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef).Token()
+            from last in Parse.Char(';').Token()
+            select new TokenReturnStement()
+            {
+                Value = val
+            };
+        
         /// <summary>
         ///     ex:Console.WriteLine("123");
         /// </summary>
@@ -268,12 +285,12 @@ namespace CoreScript.Tokens
             ).Token();
 
         /// <summary>
-        ///     ex: int a =1; or  a=1;
+        ///     ex: int a =1;  /  var a =1 ;   /     a=1;
         /// </summary>
         public static readonly Parser<TokenStement> Assignment =
             (from left in VariableDefine.Or<IReturnValue>(VariableRef)
                 from opt in Parse.Char('=').Token()
-                from right in BinaryExpression.Or(Literal).Or(VariableRef)
+                from right in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef)
                 from last in Parse.Char(';').Token()
                 select new TokenAssignment(left.TokenType == TokenType.VariableDefine
                     ? TokenType.AssignmentDefine
@@ -283,7 +300,7 @@ namespace CoreScript.Tokens
                     Right = right
                 }).Token();
 
-        public static readonly Parser<TokenStement> Statement = CallMethodStatement.Or(Assignment).Or(IFStement);
+        public static readonly Parser<TokenStement> Statement =ReturnStement.Or<TokenStement>( CallMethodStatement).Or(Assignment).Or(IFStement);
 
         #endregion
 
@@ -294,11 +311,11 @@ namespace CoreScript.Tokens
         /// </summary>
         public static readonly Parser<TokenBlockStement> Block = (
             from s1 in Parse.Char('{').Token()
-            from statements in Statement.Or<TokenStement>(IFStement).Many()
+            from statements in Statement.Many()
             from s3 in Parse.Char('}').Token()
             select new TokenBlockStement
             {
-                Stements = statements.ToList()
+                Stements = statements.Slice(it => it.TokenType == TokenType.Return)
             }).Token();
 
 

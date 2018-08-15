@@ -11,6 +11,7 @@ namespace CoreScript.Script
         internal const string Double = nameof(Double);
         internal const string String = nameof(String);
         internal const string Boolean = nameof(Boolean);
+        internal const string Void = nameof(Void);
 
         /// <summary>
         ///     根据字面量字符串获取Type类型
@@ -29,6 +30,8 @@ namespace CoreScript.Script
                     return typeof(string);
                 case ScriptType.Boolean:
                     return typeof(bool);
+                case ScriptType.Void:
+                    return typeof(void);
                 default:
                     throw new Exception("未知的数据类型");
             }

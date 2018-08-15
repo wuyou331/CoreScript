@@ -50,15 +50,21 @@ namespace CoreScript.Script
         {
             var size = stack.Count();
             foreach (var stement in block.Stements)
-                if (stement is TokenFunctionCallStement call)
-                    ExcuteCall(call, stack);
-                else if (stement is TokenAssignment assignment)
-                    ExcutAassignment(assignment, stack);
-                else if (stement is TokenConditionBlock condition)
-                    ExcuteCondition(condition, stack);
+                switch (stement)
+                {
+                    case TokenFunctionCallStement call:
+                        ExcuteCall(call, stack);
+                        break;
+                    case TokenAssignment assignment:
+                        ExcutAassignment(assignment, stack);
+                        break;
+                    case TokenConditionBlock condition:
+                        ExcuteCondition(condition, stack);
+                        break;
+                }
             stack.Pop(stack.Count() - size);
         }
-        
+
         /// <summary>
         /// 执行条件语句
         /// </summary>
@@ -66,18 +72,22 @@ namespace CoreScript.Script
         /// <param name="stack"></param>
         public void ExcuteCondition(TokenConditionBlock stement, VariableStack stack)
         {
-            var scriptVariable = ScriptEngine.ReturnValue(stement.Condition, stack);
-            if (scriptVariable.DataType != nameof(Boolean)) throw new Exception("非bool值");
-            if (scriptVariable.Value is Boolean val)
+            while (true)
             {
+                var scriptVariable = ScriptEngine.ReturnValue(stement.Condition, stack);
+                if (scriptVariable.DataType != ScriptType.Boolean) throw new Exception("非bool值");
+                if (!(scriptVariable.Value is Boolean val)) return;
                 if (val)
                 {
-                    ExcuteBlock(stement.TrueBlock, stack);
+                    ExcuteBlock(stement.TrueBlock, stack); 
                 }
                 else if (stement.Else != null)
                 {
-                    ExcuteCondition(stement.Else, stack);
+                    stement = stement.Else;
+                    continue;
                 }
+
+                break;
             }
         }
 

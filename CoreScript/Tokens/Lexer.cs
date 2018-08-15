@@ -23,6 +23,7 @@ namespace CoreScript.Tokens
                     rs.Value.Start = index;
                     index += rs.Value.Postion;
                     tokens.Add(rs.Value);
+                    
                 }
                 else
                 {

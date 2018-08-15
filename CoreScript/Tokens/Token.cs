@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using CoreScript.Script;
 
 namespace CoreScript.Tokens
@@ -28,6 +29,7 @@ namespace CoreScript.Tokens
     }
 
 
+    
     /// <summary>
     /// 变量引用
     /// </summary>
@@ -101,6 +103,16 @@ namespace CoreScript.Tokens
     {
     }
 
+    /// <summary>
+    /// 返回语句
+    /// </summary>
+    public class TokenReturnStement : TokenStement, IReturnValue
+    {
+        public override TokenType TokenType { get; } = TokenType.Return;
+        public string DataType { get; }
+        public IReturnValue Value{ get; set; }
+    }
+
     public class TokenFunctionCallStement : TokenStement, IReturnValue
     {
         public override TokenType TokenType => TokenType.FunctionCall;
@@ -112,10 +124,12 @@ namespace CoreScript.Tokens
 
         public IList<IReturnValue> Parameters { get; set; }
 
-
         public string DataType { get; set; }
     }
 
+    /// <summary>
+    /// 代码块
+    /// </summary>
     public class TokenBlockStement : TokenStement
     {
         public override TokenType TokenType => TokenType.Block;
@@ -201,7 +215,11 @@ namespace CoreScript.Tokens
         /// 判断表达式
         /// </summary>
         JudgmentExpression,
-        BinaryExpression
+        BinaryExpression,
+        /// <summary>
+        /// 返回语句
+        /// </summary>
+        Return
     }
 
     public enum JudgmentExpressionType

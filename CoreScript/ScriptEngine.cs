@@ -44,12 +44,17 @@ namespace CoreScript
         /// <param name="stement"></param>
         internal static void ExcuteAssignment(TokenAssignment stement, VariableStack stack)
         {
-            if (stement.Left is TokenVariableDefine define)
-                stack.Push(define.Variable, ReturnValue(stement.Right, stack));
-            else if (stement.Left is TokenVariableRef varRef)
-                stack.Set(varRef.Variable, ReturnValue(stement.Right, stack));
-            else
-            throw new Exception("不支持的变量赋值");
+            switch (stement.Left)
+            {
+                case TokenVariableDefine define:
+                    stack.Push(define.Variable, ReturnValue(stement.Right, stack));
+                    break;
+                case TokenVariableRef varRef:
+                    stack.Set(varRef.Variable, ReturnValue(stement.Right, stack));
+                    break;
+                default:
+                    throw new Exception("不支持的变量赋值");
+            }
         }
 
         /// <summary>
@@ -59,17 +64,17 @@ namespace CoreScript
         /// <returns></returns>
         internal static ScriptValue ReturnValue(IReturnValue value, VariableStack stack)
         {
-            if (value is TokenLiteral literal)
-                return new ScriptValue {DataType = literal.DataType, Value = literal.Value};
-
-            if (value is TokenVariableRef varRef) return stack.Get(varRef.Variable);
-
-            if (value is TokenJudgmentExpression expr)
-         
-                return ExcuteJudgment(expr, stack);
-       
-
-            if (value is TokenBinaryExpression binExpr) return SumBinaryExpression(binExpr, stack);
+            switch (value)
+            {
+                case TokenLiteral literal:
+                    return new ScriptValue {DataType = literal.DataType, Value = literal.Value};
+                case TokenVariableRef varRef:
+                    return stack.Get(varRef.Variable);
+                case TokenJudgmentExpression expr:
+                    return ExcuteJudgment(expr, stack);
+                case TokenBinaryExpression binExpr:
+                    return SumBinaryExpression(binExpr, stack);
+            }
 
             throw new Exception("不支持的取值方式.");
         }
@@ -84,14 +89,21 @@ namespace CoreScript
                 DataType = nameof(Boolean),
             };
 
-            if (expr.Operator == JudgmentExpressionType.Equal)
-                result.Value = left.Value.Equals(right.Value);
-            else if (expr.Operator == JudgmentExpressionType.NotEqual)
-                result.Value = !left.Value.Equals(right.Value);
-            else if (expr.Operator == JudgmentExpressionType.And)
-                result.Value = (bool) left.Value && (bool) right.Value;
-            else if (expr.Operator == JudgmentExpressionType.Or)
-                result.Value = (bool) left.Value || (bool) right.Value;
+            switch (expr.Operator)
+            {
+                case JudgmentExpressionType.Equal:
+                    result.Value = left.Value.Equals(right.Value);
+                    break;
+                case JudgmentExpressionType.NotEqual:
+                    result.Value = !left.Value.Equals(right.Value);
+                    break;
+                case JudgmentExpressionType.And:
+                    result.Value = (bool) left.Value && (bool) right.Value;
+                    break;
+                case JudgmentExpressionType.Or:
+                    result.Value = (bool) left.Value || (bool) right.Value;
+                    break;
+            }
 
             return result;
         }
