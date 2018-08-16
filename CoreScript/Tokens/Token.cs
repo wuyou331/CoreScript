@@ -134,6 +134,9 @@ namespace CoreScript.Tokens
     {
         public override TokenType TokenType => TokenType.Block;
         public IList<TokenStement> Stements { get; set; }
+        
+        public bool HasReturn() => Stements?.Last().GetType() == typeof(TokenReturnStement);
+        
         public string DataType { get; } = ScriptType.Void;
         public TokenVariableDefine ReturnValue { get; set; }
     }

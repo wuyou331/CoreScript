@@ -30,15 +30,22 @@ namespace CoreScript.Script
             if ((args?.Count ?? 0) != _token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
 
             var index = 0;
-            foreach (var variableDefine in _token.Parameters.Variables)
+            try
             {
-                var svar = args[index++];
-                stack.Push(variableDefine.Variable, svar);
+                //方法参数入栈
+                foreach (var variableDefine in _token.Parameters.Variables)
+                {
+                    var svar = args[index];
+                    stack.Push(variableDefine.Variable, svar);
+                    index++;
+                }
+
+                ExcuteBlock(_token.CodeBlock, stack,true);
             }
-
-            ExcuteBlock(_token.CodeBlock, stack);
-
-            stack.Pop(index);
+            finally
+            {
+                stack.Pop(index);
+            }
             return null;
         }
 
@@ -46,23 +53,40 @@ namespace CoreScript.Script
         /// 执行代码块
         /// </summary>
         /// <param name="block"></param>
-        public void ExcuteBlock(TokenBlockStement block, VariableStack stack)
+        public void ExcuteBlock(TokenBlockStement block, VariableStack stack,bool isFunction=false)
         {
             var size = stack.Count();
-            foreach (var stement in block.Stements)
-                switch (stement)
-                {
-                    case TokenFunctionCallStement call:
-                        ExcuteCall(call, stack);
-                        break;
-                    case TokenAssignment assignment:
-                        ExcutAassignment(assignment, stack);
-                        break;
-                    case TokenConditionBlock condition:
-                        ExcuteCondition(condition, stack);
-                        break;
-                }
-            stack.Pop(stack.Count() - size);
+            try
+            {
+                foreach (var stement in block.Stements)
+                    switch (stement)
+                    {
+                        case TokenFunctionCallStement call:
+                            ExcuteCall(call, stack);
+                            break;
+                        case TokenAssignment assignment:
+                            ExcutAassignment(assignment, stack);
+                            break;
+                        case TokenConditionBlock condition:
+                            ExcuteCondition(condition, stack);
+                            if (!isFunction)
+                            {
+                                continue;
+                            }
+
+                            break;
+                        case TokenReturnStement returnStement:
+                        {
+                      
+                        }
+                            break;
+                    }
+            }
+            finally
+            {
+                stack.Pop(stack.Count() - size);
+            }
+      
         }
 
         /// <summary>
