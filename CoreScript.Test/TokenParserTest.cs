@@ -36,8 +36,9 @@ namespace CoreScript.Test
             Assert.IsTrue(TokenParser.Tuple.TryParse("(a)").WasSuccessful);
             Assert.IsTrue(TokenParser.Tuple.TryParse("(a,b)").WasSuccessful);
             Assert.IsTrue(TokenParser.Tuple.TryParse("(1,2)").WasSuccessful);
-            Assert.IsTrue(TokenParser.Tuple.TryParse("(true").WasSuccessful);
-            Assert.IsTrue(TokenParser.Tuple.TryParse("(true,false").WasSuccessful);
+            Assert.IsTrue(TokenParser.Tuple.TryParse("(get())").WasSuccessful);
+            Assert.IsTrue(TokenParser.Tuple.TryParse("(true)").WasSuccessful);
+            Assert.IsTrue(TokenParser.Tuple.TryParse("(true,false)").WasSuccessful);
             Assert.IsFalse(TokenParser.Tuple.TryParse("(a abc)").WasSuccessful);
             Assert.IsFalse(TokenParser.Tuple.TryParse("(a,)").WasSuccessful);
         }
@@ -205,6 +206,16 @@ namespace CoreScript.Test
             Assert.IsTrue(TokenParser.ReturnStement.TryParse("return a and b;").WasSuccessful);
             Assert.IsTrue(TokenParser.ReturnStement.TryParse("return 1+1;").WasSuccessful);
             Assert.IsTrue(TokenParser.ReturnStement.TryParse("return  ;").WasSuccessful);
+        }
+        
+        [TestMethod]
+        public void TestAssignmentStement()
+        {
+            Assert.IsTrue(TokenParser.Assignment.TryParse(" a=1;").WasSuccessful);
+            Assert.IsTrue(TokenParser.Assignment.TryParse("var a=1;").WasSuccessful);
+            Assert.IsTrue(TokenParser.Assignment.TryParse("var a=abc;").WasSuccessful);
+            Assert.IsTrue(TokenParser.Assignment.TryParse("var a=true;").WasSuccessful);
+            Assert.IsTrue(TokenParser.Assignment.TryParse("var a=abc();").WasSuccessful);
         }
 
         [TestMethod]

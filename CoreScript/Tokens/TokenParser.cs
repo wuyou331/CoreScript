@@ -80,9 +80,9 @@ namespace CoreScript.Tokens
         /// </summary>
         public static readonly Parser<IEnumerable<IReturnValue>> Tuple =
             (from left in Parse.Char('(').Token()
-                from args in (from argFirst in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef).Once()
+                from args in (from argFirst in CallMethodStatementPart.Or<IReturnValue>( BinaryExpression).Or(JudgmentExpression).Or(Literal).Or(VariableRef).Once()
                     from spit in (from comma in Parse.Char(',').Token()
-                        from argOther in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef)
+                        from argOther in  CallMethodStatementPart.Or<IReturnValue>( BinaryExpression).Or(JudgmentExpression).Or(Literal).Or(VariableRef)
                         select argOther).Many()
                     select argFirst.Concat(spit)).Optional()
                 from right in Parse.Char(')').Token()
@@ -260,37 +260,46 @@ namespace CoreScript.Tokens
         /// </summary>
         public static readonly Parser<TokenReturnStement> ReturnStement =
             from ret in Keyword("return")
-            from val in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef).Token().Optional()
+            from val in CallMethodStatementPart.Or<IReturnValue>( BinaryExpression).Or(JudgmentExpression).Or(Literal).Or(VariableRef).Token().Optional()
             from last in Parse.Char(';').Token()
             select new TokenReturnStement()
             {
                 Value = val.GetOrDefault()
             };
         
+        
         /// <summary>
         ///     ex:Console.WriteLine("123");
         /// </summary>
-        public static readonly Parser<TokenFunctionCallStement> CallMethodStatement =
+        public static readonly Parser<TokenFunctionCallStement> CallMethodStatementPart =
             (from first in Identifier.Once().Token()
                 from other in (from s22 in Parse.Char('.')
                     from s23 in Identifier
                     select s23.Text()).Many()
                 from argResult in Tuple
-                from end in Parse.Char(';').Token()
                 select new TokenFunctionCallStement
                 {
                     CallChain = new List<string>(first.Concat(other)),
                     Parameters = argResult.ToList()
                 }
-            ).Token();
+            );
 
+        /// <summary>
+        ///     ex:Console.WriteLine("123");
+        /// </summary>
+        public static readonly Parser<TokenFunctionCallStement> CallMethodStatement =
+            (from first in CallMethodStatementPart
+                from end in Parse.Char(';').Token()
+                select first
+            ).Token();
+        
         /// <summary>
         ///     ex: int a =1;  /  var a =1 ;   /     a=1;
         /// </summary>
         public static readonly Parser<TokenStement> Assignment =
             (from left in VariableDefine.Or<IReturnValue>(VariableRef)
                 from opt in Parse.Char('=').Token()
-                from right in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef)
+                from right in CallMethodStatementPart.Or<IReturnValue>(BinaryExpression).Or(JudgmentExpression).Or(Literal).Or(VariableRef)
                 from last in Parse.Char(';').Token()
                 select new TokenAssignment(left.TokenType == TokenType.VariableDefine
                     ? TokenType.AssignmentDefine

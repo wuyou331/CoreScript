@@ -8,12 +8,12 @@ namespace CoreScript
 {
     public class ScriptEngine
     {
-        private Dictionary<string, ScriptFunction> _functions;
+        private static Dictionary<string, ScriptFunction> _functions;
 
         /// <summary>
         ///     函数定义
         /// </summary>
-        public IDictionary<string, ScriptFunction> Functions => _functions;
+        public static IDictionary<string, ScriptFunction> Functions => _functions;
 
 
         public void Excute(string script)
@@ -74,12 +74,71 @@ namespace CoreScript
                     return ExcuteJudgment(expr, stack);
                 case TokenBinaryExpression binExpr:
                     return SumBinaryExpression(binExpr, stack);
+                case TokenFunctionCallStement call:
+                    return ExcuteCall(call, stack);
             }
 
             throw new Exception("不支持的取值方式.");
         }
 
+        /// <summary>
+        ///     方法调用
+        /// </summary>
+        /// <param name="stement"></param>
+        /// <returns></returns>
+        internal static ScriptValue ExcuteCall(TokenFunctionCallStement stement, VariableStack stack)
+        {
+            var first = stement.CallChain.First();
 
+            var paremeters = new List<ScriptValue>();
+            foreach (var value in stement.Parameters)
+            {
+                var scriptVar = ScriptEngine.ReturnValue(value, stack);
+                paremeters.Add(scriptVar);
+            }
+
+            if (Functions.ContainsKey(first))
+            {
+                //调用脚本中定义的函数
+                return Functions[first].Excute(stack, paremeters);
+            }
+            else
+            {
+                var argTypes = new List<Type>();
+                var argValues = new List<object>();
+
+                foreach (var paremeter in paremeters)
+                {
+                    var dataType = ScriptType.GetType(paremeter.DataType);
+                    argTypes.Add(dataType);
+                    argValues.Add(paremeter.Value);
+                }
+
+                //调用.Net框架中的方法
+                //从程序集中找出名称和参数定义相同的方法
+                var methods = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(it => it.DefinedTypes.Where(it1 => it1.Name == first)
+                        .Select(t => t.GetMethod(stement.CallChain.Last(), argTypes.ToArray()))
+                        .Where(m => m != null)
+                    ).ToList();
+                if (!methods.Any()) throw new Exception("没有找到对应的方法");
+                //   if(methods.Count()>1) throw new Exception("找到多个方法，无法确定调用哪个");
+                var method = methods.First();
+                var retValue = new ScriptValue();
+                var value = method.Invoke(null, argValues.ToArray());
+                if (method.ReturnType == typeof(void))
+                {
+                    return null;
+                }
+                else
+                {
+                    return new ScriptValue()
+                    {
+                        Value = value
+                    };
+                }
+            }
+        }
         public static ScriptValue ExcuteJudgment(TokenJudgmentExpression expr, VariableStack stack)
         {
             var left = ReturnValue(expr.Left, stack);
