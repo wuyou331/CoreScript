@@ -67,7 +67,7 @@ namespace CoreScript
                 case TokenVariableRef varRef:
                     return stack.Get(varRef.Variable);
                 case TokenJudgmentExpression expr:
-                    return ExcuteJudgment(expr);
+                    return Judgment(expr);
                 case TokenBinaryExpression binExpr:
                     return SumBinaryExpression(binExpr);
                 case TokenFunctionCallStement call:
@@ -133,66 +133,29 @@ namespace CoreScript
         /// <param name="stack"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        private ScriptValue ExcuteFunction(TokenFunctionDefine _token,
-            IList<ScriptValue> args = null)
+        private ScriptValue ExcuteFunction(TokenFunctionDefine token,IList<ScriptValue> args = null)
         {
-            if ((args?.Count ?? 0) != _token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
+            if ((args?.Count ?? 0) != token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
 
             var index = 0;
             try
             {
                 //方法参数入栈
-                foreach (var variableDefine in _token.Parameters.Variables)
+                foreach (var variableDefine in token.Parameters.Variables)
                 {
                     var svar = args[index];
                     stack.Push(variableDefine.Variable, svar);
                     index++;
                 }
 
-                return ExcuteBlock(_token.CodeBlock);
+                return ExcuteBlock(token.CodeBlock);
             }
             finally
             {
                 stack.Pop(index);
             }
-
-            return null;
         }
 
-
-        /// <summary>
-        ///     执行条件判断
-        /// </summary>
-        /// <param name="expr"></param>
-        /// <param name="stack"></param>
-        /// <returns></returns>
-        private ScriptValue ExcuteJudgment(TokenJudgmentExpression expr)
-        {
-            var left = ReturnValue(expr.Left);
-            var right = ReturnValue(expr.Right);
-            var result = new ScriptValue
-            {
-                DataType = nameof(Boolean)
-            };
-
-            switch (expr.Operator)
-            {
-                case JudgmentExpressionType.Equal:
-                    result.Value = left.Value.Equals(right.Value);
-                    break;
-                case JudgmentExpressionType.NotEqual:
-                    result.Value = !left.Value.Equals(right.Value);
-                    break;
-                case JudgmentExpressionType.And:
-                    result.Value = (bool) left.Value && (bool) right.Value;
-                    break;
-                case JudgmentExpressionType.Or:
-                    result.Value = (bool) left.Value || (bool) right.Value;
-                    break;
-            }
-
-            return result;
-        }
 
 
         /// <summary>
@@ -233,6 +196,7 @@ namespace CoreScript
                 stack.Pop(stack.Count() - size);
             }
         }
+        
 
         /// <summary>
         ///     执行条件语句
@@ -266,6 +230,11 @@ namespace CoreScript
         }
 
 
+        /// <summary>
+        /// 执行返回语句
+        /// </summary>
+        /// <param name="stement"></param>
+        /// <returns></returns>
         private ScriptValue ExcuteReturnStement(TokenReturnStement stement)
         {
             if (stement.Value == null)
@@ -287,6 +256,8 @@ namespace CoreScript
         }
 
 
+        
+        #region 运算
         /// <summary>
         ///     二元运算符计算
         /// </summary>
@@ -415,6 +386,39 @@ namespace CoreScript
             }
         }
         
-        
+        /// <summary>
+        ///     执行条件判断
+        /// </summary>
+        /// <param name="expr"></param>
+        /// <param name="stack"></param>
+        /// <returns></returns>
+        private ScriptValue Judgment(TokenJudgmentExpression expr)
+        {
+            var left = ReturnValue(expr.Left);
+            var right = ReturnValue(expr.Right);
+            var result = new ScriptValue
+            {
+                DataType = nameof(Boolean)
+            };
+
+            switch (expr.Operator)
+            {
+                case JudgmentExpressionType.Equal:
+                    result.Value = left.Value.Equals(right.Value);
+                    break;
+                case JudgmentExpressionType.NotEqual:
+                    result.Value = !left.Value.Equals(right.Value);
+                    break;
+                case JudgmentExpressionType.And:
+                    result.Value = (bool) left.Value && (bool) right.Value;
+                    break;
+                case JudgmentExpressionType.Or:
+                    result.Value = (bool) left.Value || (bool) right.Value;
+                    break;
+            }
+
+            return result;
+        }
+        #endregion
     }
 }
