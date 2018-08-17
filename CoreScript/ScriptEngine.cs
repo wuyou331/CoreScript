@@ -53,6 +53,9 @@ namespace CoreScript
             }
         }
 
+
+
+        
         /// <summary>
         ///     计算带返回值的语句或表达式
         /// </summary>
@@ -176,7 +179,7 @@ namespace CoreScript
                     }
                     else if (stement is TokenAssignment assignment)
                     {
-                        ExcutAassignment(assignment);
+                        ExcuteAssignment(assignment);
                     }
                     else if (stement is TokenConditionBlock condition)
                     {
@@ -246,15 +249,6 @@ namespace CoreScript
             return ReturnValue(stement.Value);
         }
 
-
-        /// <summary>
-        ///     变量赋值
-        /// </summary>
-        /// <param name="stement"></param>
-        private void ExcutAassignment(TokenAssignment stement)
-        {
-            ExcuteAssignment(stement);
-        }
 
 
         
