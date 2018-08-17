@@ -9,12 +9,12 @@ namespace CoreScript
     public class ScriptEngine
     {
         private Dictionary<string, TokenFunctionDefine> _functions;
-        private VariableStack stack;
+        private VariableStack _stack;
 
         public void Excute(string script)
         {
             var rs = Lexer.Analyzer(script);
-            stack = new VariableStack();
+            _stack = new VariableStack();
             
             //初始化全局变量
             foreach (var token in rs.Where(it => it.TokenType == TokenType.AssignmentDefine).Cast<TokenAssignment>())
@@ -30,7 +30,7 @@ namespace CoreScript
 
             var main = _functions["main"];
             ExcuteFunction(main);
-            stack.Pop(stack.Count());
+            _stack.Pop(_stack.Count());
         }
 
 
@@ -43,10 +43,10 @@ namespace CoreScript
             switch (stement.Left)
             {
                 case TokenVariableDefine define:
-                    stack.Push(define.Variable, ReturnValue(stement.Right));
+                    _stack.Push(define.Variable, ReturnValue(stement.Right));
                     break;
                 case TokenVariableRef varRef:
-                    stack.Set(varRef.Variable, ReturnValue(stement.Right));
+                    _stack.Set(varRef.Variable, ReturnValue(stement.Right));
                     break;
                 default:
                     throw new Exception("不支持的变量赋值");
@@ -65,7 +65,7 @@ namespace CoreScript
                 case TokenLiteral literal:
                     return new ScriptValue {DataType = literal.DataType, Value = literal.Value};
                 case TokenVariableRef varRef:
-                    return stack.Get(varRef.Variable);
+                    return _stack.Get(varRef.Variable);
                 case TokenJudgmentExpression expr:
                     return Judgment(expr);
                 case TokenBinaryExpression binExpr:
@@ -130,7 +130,7 @@ namespace CoreScript
         /// <summary>
         ///     执行自定义方法
         /// </summary>
-        /// <param name="stack"></param>
+        /// <param name="token"></param>
         /// <param name="args"></param>
         /// <returns></returns>
         private ScriptValue ExcuteFunction(TokenFunctionDefine token,IList<ScriptValue> args = null)
@@ -144,7 +144,7 @@ namespace CoreScript
                 foreach (var variableDefine in token.Parameters.Variables)
                 {
                     var svar = args[index];
-                    stack.Push(variableDefine.Variable, svar);
+                    _stack.Push(variableDefine.Variable, svar);
                     index++;
                 }
 
@@ -152,7 +152,7 @@ namespace CoreScript
             }
             finally
             {
-                stack.Pop(index);
+                _stack.Pop(index);
             }
         }
 
@@ -164,11 +164,12 @@ namespace CoreScript
         /// <param name="block"></param>
         private ScriptValue ExcuteBlock(TokenBlockStement block)
         {
-            var size = stack.Count();
+            var size = _stack.Count();
             try
             {
                 ScriptValue value = null;
                 foreach (var stement in block.Stements)
+                {
                     if (stement is TokenFunctionCallStement call)
                     {
                         ExcuteCall(call);
@@ -185,24 +186,24 @@ namespace CoreScript
                     else if (stement is TokenReturnStement returnStement)
                     {
                         value = ExcuteReturnStement(returnStement);
-
                         break;
                     }
+                }
 
                 return value;
             }
             finally
             {
-                stack.Pop(stack.Count() - size);
+                _stack.Pop(_stack.Count() - size);
             }
         }
-        
+
 
         /// <summary>
         ///     执行条件语句
         /// </summary>
         /// <param name="stement"></param>
-        /// <param name="stack"></param>
+        /// <param></param>
         private ScriptValue ExcuteCondition(TokenConditionBlock stement)
         {
             ScriptValue retValue = null;
@@ -258,11 +259,12 @@ namespace CoreScript
 
         
         #region 运算
+
         /// <summary>
         ///     二元运算符计算
         /// </summary>
         /// <param name="expr"></param>
-        /// <param name="stack"></param>
+        /// <param></param>
         /// <returns></returns>
         private ScriptValue SumBinaryExpression(TokenBinaryExpression expr)
         {
@@ -385,12 +387,12 @@ namespace CoreScript
                 #endregion
             }
         }
-        
+
         /// <summary>
         ///     执行条件判断
         /// </summary>
         /// <param name="expr"></param>
-        /// <param name="stack"></param>
+        /// <param></param>
         /// <returns></returns>
         private ScriptValue Judgment(TokenJudgmentExpression expr)
         {
