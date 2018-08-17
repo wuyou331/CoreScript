@@ -10,7 +10,7 @@ namespace ConsoleApp
             var script = "var age=18;" +
                          "func main(){" +
                          "  var name = \" \\\"wuyou \\\"\";" +
-                         "  print(\"my name is \");" +
+                         "  print(\"my name is \",false);" +
                          "  println(name);" +
                          "  if age==name or 1==1 then{" +
                          "      name = name;" +
@@ -22,7 +22,11 @@ namespace ConsoleApp
                          "  println(name);" +
                          "  println(age);" +
                          "}" +
-                         "func print(var str){" +
+                         "func print(var str,var repart){" +
+                         "  Console.Write(str);" +
+                         "  if repart==false then {" +
+                         "    return ;" +
+                         "  }" +
                          "  Console.Write(str);" +
                          "}" +
                          "func println(var str){" +

@@ -40,12 +40,13 @@ namespace CoreScript.Script
                     index++;
                 }
 
-                ExcuteBlock(_token.CodeBlock, stack,true);
+                return ExcuteBlock(_token.CodeBlock, stack);
             }
             finally
             {
                 stack.Pop(index);
             }
+
             return null;
         }
 
@@ -53,34 +54,38 @@ namespace CoreScript.Script
         /// 执行代码块
         /// </summary>
         /// <param name="block"></param>
-        public void ExcuteBlock(TokenBlockStement block, VariableStack stack,bool isFunction=false)
+        public ScriptValue ExcuteBlock(TokenBlockStement block, VariableStack stack)
         {
             var size = stack.Count();
             try
             {
+                ScriptValue value= null;
                 foreach (var stement in block.Stements)
-                    switch (stement)
+                {
+                    if (stement is TokenFunctionCallStement call)
                     {
-                        case TokenFunctionCallStement call:
-                            ExcuteCall(call, stack);
-                            break;
-                        case TokenAssignment assignment:
-                            ExcutAassignment(assignment, stack);
-                            break;
-                        case TokenConditionBlock condition:
-                            ExcuteCondition(condition, stack);
-                            if (!isFunction)
-                            {
-                                continue;
-                            }
-
-                            break;
-                        case TokenReturnStement returnStement:
-                        {
-                      
-                        }
-                            break;
+                        ExcuteCall(call, stack);
                     }
+                    else if (stement is TokenAssignment assignment)
+                    {
+                        ExcutAassignment(assignment, stack);
+                    }
+                    else if (stement is TokenConditionBlock condition)
+                    {
+                        value = ExcuteCondition(condition, stack);
+                        if (value != null )
+                        {
+                            break;
+                        }
+                    }
+                    else if (stement is TokenReturnStement returnStement)
+                    {
+                        value = ExcuteReturnStement(returnStement,stack);
+                        
+                        break;
+                    }
+                }
+                return value;
             }
             finally
             {
@@ -89,30 +94,49 @@ namespace CoreScript.Script
       
         }
 
+        public ScriptValue ExcuteReturnStement(TokenReturnStement stement, VariableStack stack)
+        {
+            if (stement.Value == null)
+            {
+                return new ScriptValue()
+                {
+                    DataType = ScriptType.Void
+                };
+            }
+            else
+            {
+                return ScriptEngine.ReturnValue(stement.Value,stack);
+            }
+        }
+
         /// <summary>
         /// 执行条件语句
         /// </summary>
         /// <param name="stement"></param>
         /// <param name="stack"></param>
-        public void ExcuteCondition(TokenConditionBlock stement, VariableStack stack)
+        public ScriptValue ExcuteCondition(TokenConditionBlock stement, VariableStack stack)
         {
+            ScriptValue retValue= null;
             while (true)
             {
                 var scriptVariable = ScriptEngine.ReturnValue(stement.Condition, stack);
                 if (scriptVariable.DataType != ScriptType.Boolean) throw new Exception("非bool值");
-                if (!(scriptVariable.Value is Boolean val)) return;
-                if (val)
+                if (scriptVariable.Value is Boolean val)
                 {
-                    ExcuteBlock(stement.TrueBlock, stack); 
+                    if (val)
+                    {
+                        retValue= ExcuteBlock(stement.TrueBlock, stack); 
+                    }
+                    else if (stement.Else != null)
+                    {
+                        stement = stement.Else;
+                        continue;
+                    }
                 }
-                else if (stement.Else != null)
-                {
-                    stement = stement.Else;
-                    continue;
-                }
-
                 break;
             }
+
+            return retValue;
         }
 
         /// <summary>

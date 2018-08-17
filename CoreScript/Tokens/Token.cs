@@ -130,16 +130,26 @@ namespace CoreScript.Tokens
     /// <summary>
     /// 代码块
     /// </summary>
-    public class TokenBlockStement : TokenStement,IReturnValue
+    public class TokenBlockStement : TokenStement, IReturnValue
     {
         public override TokenType TokenType => TokenType.Block;
         public IList<TokenStement> Stements { get; set; }
-        
-        public bool HasReturn() => Stements?.Last().GetType() == typeof(TokenReturnStement);
-        
+
+
         public string DataType { get; } = ScriptType.Void;
-        public TokenVariableDefine ReturnValue { get; set; }
     }
+
+    /// <summary>
+    /// 函数定义代码块
+    /// </summary>
+
+    public class TokenFunctionBlock : TokenBlockStement
+    {
+        
+        public IReturnValue ReturnValue { get; set; }
+    }
+
+
 
     /// <summary>
     /// 判断表达式

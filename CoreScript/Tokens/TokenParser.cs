@@ -80,11 +80,11 @@ namespace CoreScript.Tokens
         /// </summary>
         public static readonly Parser<IEnumerable<IReturnValue>> Tuple =
             (from left in Parse.Char('(').Token()
-                from args in (from argFirst in VariableRef.Or(Literal).Once()
-                    from argOther in (from comma in Parse.Char(',').Token()
-                        from argOtherItem in VariableRef.Or(Literal)
-                        select argOtherItem).Many()
-                    select argFirst.Concat(argOther)).Optional()
+                from args in (from argFirst in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef).Once()
+                    from spit in (from comma in Parse.Char(',').Token()
+                        from argOther in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef)
+                        select argOther).Many()
+                    select argFirst.Concat(spit)).Optional()
                 from right in Parse.Char(')').Token()
                 select args.ToArray()).Token();
 
@@ -260,11 +260,11 @@ namespace CoreScript.Tokens
         /// </summary>
         public static readonly Parser<TokenReturnStement> ReturnStement =
             from ret in Keyword("return")
-            from val in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef).Token()
+            from val in BinaryExpression.Or<IReturnValue>(JudgmentExpression).Or(Literal).Or(VariableRef).Token().Optional()
             from last in Parse.Char(';').Token()
             select new TokenReturnStement()
             {
-                Value = val
+                Value = val.GetOrDefault()
             };
         
         /// <summary>
