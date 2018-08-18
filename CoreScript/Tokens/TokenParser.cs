@@ -144,12 +144,15 @@ namespace CoreScript.Tokens
         #region  Judgment
         private static readonly Parser<TokenJudgmentExpression> JudgmentExpressionFactor =
             from first in Literal.Or(VariableRef).Token()
-            from sign in Parse.String("==").Or(Parse.String("!=")).Token()
+            from sign in Parse.String("==").Then(it=>Parse.Return(JudgmentExpressionType.Equal))
+                .Or(Parse.String("!=").Then(it=>Parse.Return(JudgmentExpressionType.NotEqual)))
+                .Or(Parse.String(">").Then(it=>Parse.Return(JudgmentExpressionType.Gt)))
+                .Or(Parse.String("<").Then(it=>Parse.Return(JudgmentExpressionType.Lt))).Token()
             from second in Literal.Or(VariableRef)
             select new TokenJudgmentExpression()
             {
                 Left = first,
-                Operator = sign.Text() == "==" ? JudgmentExpressionType.Equal : JudgmentExpressionType.NotEqual,
+                Operator = sign,
                 Right = second
             };
 
@@ -165,15 +168,17 @@ namespace CoreScript.Tokens
         /// ex: a==b and 1==1 or a
         /// </summary>
         public static readonly Parser<TokenJudgmentExpression> JudgmentExpression = Parse
-            .ChainOperator(Parse.String("and").Or(Parse.String("or")).Token().Text(), JudgmentExpressionTerm, BuildTokenJudgmentExpression)
+            .ChainOperator(Parse.String("and").Then(it=>Parse.Return(JudgmentExpressionType.And))
+                                .Or(Parse.String("or").Then(it=>Parse.Return(JudgmentExpressionType.Or))).Token()
+                , JudgmentExpressionTerm, BuildTokenJudgmentExpression)
             .ThenCast<IReturnValue,TokenJudgmentExpression>();
 
-        private static  TokenJudgmentExpression  BuildTokenJudgmentExpression(string opt, IReturnValue left, IReturnValue right)
+        private static  TokenJudgmentExpression  BuildTokenJudgmentExpression(JudgmentExpressionType opt, IReturnValue left, IReturnValue right)
         {
             return new TokenJudgmentExpression()
             {
                 Left = left,
-                Operator = opt == "and" ? JudgmentExpressionType.And : JudgmentExpressionType.Or,
+                Operator = opt,
                 Right = right
             };
         }

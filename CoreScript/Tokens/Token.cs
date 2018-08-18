@@ -238,8 +238,13 @@ namespace CoreScript.Tokens
 
     public enum JudgmentExpressionType
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Equal,
         NotEqual,
+        Gt,
+        Lt,
         And,
         Or
     }

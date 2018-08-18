@@ -15,11 +15,11 @@ namespace CoreScript
         {
             var rs = Lexer.Analyzer(script);
             _stack = new VariableStack();
-            
+
             //初始化全局变量
             foreach (var token in rs.Where(it => it.TokenType == TokenType.AssignmentDefine).Cast<TokenAssignment>())
                 ExcuteAssignment(token);
-            
+
             //获取所有函数定义
             _functions = rs.Where(it => it.TokenType == TokenType.FunctionDefine)
                 .Cast<TokenFunctionDefine>()
@@ -54,8 +54,6 @@ namespace CoreScript
         }
 
 
-
-        
         /// <summary>
         ///     计算带返回值的语句或表达式
         /// </summary>
@@ -136,7 +134,7 @@ namespace CoreScript
         /// <param name="token"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        private ScriptValue ExcuteFunction(TokenFunctionDefine token,IList<ScriptValue> args = null)
+        private ScriptValue ExcuteFunction(TokenFunctionDefine token, IList<ScriptValue> args = null)
         {
             if ((args?.Count ?? 0) != token.Parameters.Variables.Count) throw new Exception("函数调用缺少参数");
 
@@ -160,7 +158,6 @@ namespace CoreScript
         }
 
 
-
         /// <summary>
         ///     执行代码块
         /// </summary>
@@ -172,7 +169,6 @@ namespace CoreScript
             {
                 ScriptValue value = null;
                 foreach (var stement in block.Stements)
-                {
                     if (stement is TokenFunctionCallStement call)
                     {
                         ExcuteCall(call);
@@ -191,7 +187,6 @@ namespace CoreScript
                         value = ExcuteReturnStement(returnStement);
                         break;
                     }
-                }
 
                 return value;
             }
@@ -235,7 +230,7 @@ namespace CoreScript
 
 
         /// <summary>
-        /// 执行返回语句
+        ///     执行返回语句
         /// </summary>
         /// <param name="stement"></param>
         /// <returns></returns>
@@ -250,8 +245,6 @@ namespace CoreScript
         }
 
 
-
-        
         #region 运算
 
         /// <summary>
@@ -411,10 +404,31 @@ namespace CoreScript
                 case JudgmentExpressionType.Or:
                     result.Value = (bool) left.Value || (bool) right.Value;
                     break;
+                case JudgmentExpressionType.Gt:
+                    if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
+                        result.Value = (int) left.Value > (int) right.Value;
+                    else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
+                        result.Value = (int) left.Value > (double) right.Value;
+                    else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
+                        result.Value = (double) left.Value > (int) right.Value;
+else
+                    throw new Exception("不支持比较的数据类型");
+                    break;
+                case JudgmentExpressionType.Lt:
+                    if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
+                        result.Value = (int) left.Value < (int) right.Value;
+                    else if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Double)
+                        result.Value = (int) left.Value < (double) right.Value;
+                    else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
+                        result.Value = (double) left.Value < (int) right.Value;
+else
+                    throw new Exception("不支持比较的数据类型");
+                    break;
             }
 
             return result;
         }
+
         #endregion
     }
 }
