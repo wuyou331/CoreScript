@@ -16,7 +16,7 @@ func main(){
                           
 func print(var str,var repart){
     Console.Write(str);
-    if 2<1 then {
+    if repart==false then {
      return ; 
     }
     Console.Write(str);

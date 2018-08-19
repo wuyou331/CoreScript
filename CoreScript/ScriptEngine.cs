@@ -411,8 +411,8 @@ namespace CoreScript
                         result.Value = (int) left.Value > (double) right.Value;
                     else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
                         result.Value = (double) left.Value > (int) right.Value;
-else
-                    throw new Exception("不支持比较的数据类型");
+                    else
+                        throw new Exception("不支持比较的数据类型");
                     break;
                 case JudgmentExpressionType.Lt:
                     if (left.DataType == ScriptType.Int && right.DataType == ScriptType.Int)
@@ -421,8 +421,8 @@ else
                         result.Value = (int) left.Value < (double) right.Value;
                     else if (left.DataType == ScriptType.Double && right.DataType == ScriptType.Double)
                         result.Value = (double) left.Value < (int) right.Value;
-else
-                    throw new Exception("不支持比较的数据类型");
+                    else
+                        throw new Exception("不支持比较的数据类型");
                     break;
             }
 

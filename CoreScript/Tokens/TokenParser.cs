@@ -259,7 +259,6 @@ namespace CoreScript.Tokens
         #endregion
 
 
-
         /// <summary>
         /// return 1; return a; return 1+1; return a ==b ; return a and 1==2
         /// </summary>
